@@ -252,7 +252,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 * 
 	 * tail length = |x2 - x1|
 	 * 
-	 * @param x
+	 * @param x1
 	 * @param y1
 	 * @param y2
 	 * @param g2
@@ -304,7 +304,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	/**
 	 * drawing reference line from (x1, y1) to (x2, y2) with a detour distance of "height"
 	 * 
-	 * @param x
+	 * @param x1
 	 * @param y1
 	 * @param y2
 	 * @param g2

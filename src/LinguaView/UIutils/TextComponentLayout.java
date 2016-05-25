@@ -2,7 +2,9 @@ package LinguaView.UIutils;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import javax.swing.JTextPane;
@@ -82,7 +84,7 @@ public class TextComponentLayout {
 	 * @param Textcomponent
 	 * @param filename
 	 */
-	public TextComponentLayout(JTextPane Textcomponent, String filename) {
+	public TextComponentLayout(JTextPane Textcomponent, String filename, String encoding) {
 		doc = new BatchDocument();
 		
 		normalStyle = doc.addStyle("normal_Style", null);
@@ -101,16 +103,17 @@ public class TextComponentLayout {
         StyleConstants.setBold(attributeStyle, true);
         StyleConstants.setBold(strStyle, true);
         
-		initColouring(filename);
+		initColouring(filename, encoding);
 		this.Textcomponent = Textcomponent;
 		this.Textcomponent.setEditable(true);
 		linkUp();
 		doc.addDocumentListener(new ColoringListener());
 	}
 	
-	public void initColouring(String filename) {
+	public void initColouring(String filename, String encoding) {
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename));
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new FileInputStream(filename), encoding));
 			String line = in.readLine();
 			while(line != null) {
 				initColouringLineParser(line);
@@ -149,8 +152,7 @@ public class TextComponentLayout {
 	 * state = 3: attribute value detected
 	 * state = 4: end of xml tag detected
 	 * state = 5: normal state
-	 * @param doc
-	 * @param pos
+	 * @param line
 	 * @return
 	 * @throws BadLocationException
 	 */

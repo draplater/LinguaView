@@ -1358,11 +1358,6 @@ class TabbedPaneFrame extends JFrame {
 			}
 
 			if (res == 0) {
-				new TextComponentLayout(Textcomponent, filename);
-				Textcomponent.getDocument().addUndoableEditListener(
-						new XMLUndoableEditListener());
-				undoManager.discardAllEdits();
-
 //				BufferedReader in = new BufferedReader(new FileReader(filename));
 //				String file = "";
 //				String line = in.readLine();
@@ -1379,8 +1374,20 @@ class TabbedPaneFrame extends JFrame {
 				DocumentBuilderFactory factory = DocumentBuilderFactory
 						.newInstance();
 				DocumentBuilder builder = factory.newDocumentBuilder();
-				Document doc = builder.parse(new InputSource(new FileReader(
+				Document doc0 = builder.parse(new InputSource(new FileReader(
 						filename)));
+
+				new TextComponentLayout(Textcomponent, filename,
+						doc0.getXmlEncoding());
+				Textcomponent.getDocument().addUndoableEditListener(
+						new XMLUndoableEditListener());
+				undoManager.discardAllEdits();
+
+				Document doc = builder.parse(new InputSource(new BufferedReader(
+						new InputStreamReader(
+						new FileInputStream(filename),
+								doc0.getXmlEncoding()))
+				));
 				importView(doc);
 			}
 		} catch (Exception e) {

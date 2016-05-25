@@ -9,12 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Set;
+import java.util.*;
+
 import LinguaView.TreePanel;
 /**
  * FeatureLayoutPanel loads one specified f-structure at a time and arrange its layout.
@@ -139,17 +135,19 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 					// semantic forms
 					else if (Val instanceof SemanticForm) {
 						YPos += fontHight;
-						String sfStr = "\'"; 
-						sfStr += ((SemanticForm) Val).getPred();
-						sfStr += " <";
-						for (String arg : ((SemanticForm) Val).getStringArgs()) {
-							sfStr += arg;
-							sfStr += ", ";
-						}
-						if (sfStr.lastIndexOf(", ") != -1) {
-							sfStr = sfStr.substring(0, sfStr.lastIndexOf(", "));
-						}
-						sfStr += ">\'";
+						// join the args with comma
+						List<String> argList = Arrays.asList(
+								((SemanticForm) Val).getStringArgs());
+						String argsString = String.join(", ", argList);
+
+						// add <> into argsString
+						if(!argsString.isEmpty())
+							argsString = String.format("<%s>", argsString);
+
+						String sfStr = String.format("'%s%s'",
+								((SemanticForm) Val).getPred(), // pred word itself
+								argsString // args shown as <xxx, xxx>
+								);
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(sfStr, XBoarderLineArray[i], YPos);
 					}

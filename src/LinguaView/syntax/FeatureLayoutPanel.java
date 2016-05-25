@@ -138,7 +138,14 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 						// join the args with comma
 						List<String> argList = Arrays.asList(
 								((SemanticForm) Val).getStringArgs());
-						String argsString = String.join(", ", argList);
+						String argsString = "";
+
+						// join with ", "
+						for(int j=0; j<argList.size(); j++) {
+							argsString += argList.get(j);
+							if(j != argList.size() - 1)
+								argsString += ", ";
+						}
 
 						// add <> into argsString
 						if(!argsString.isEmpty())

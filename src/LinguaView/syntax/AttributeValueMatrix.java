@@ -701,6 +701,77 @@ public class AttributeValueMatrix extends Value implements
 		return new Atomic(stub.getValue());
 	}
 
+	/**
+	 * Convert AVM to relational representation.
+	 */
+	public static void toRelational(AttributeValueMatrix target, Map<Value, String> idMap) {
+		if(idMap == null) {
+			idMap = new HashMap<>();
+			String targetID = randomString();
+			idMap.put(target, targetID);
+			System.out.println(String.format("root: %s", targetID));
+		}
+		Set<String> keys = target.getAllAttributeNames();
+		String targetID;
+		if(!idMap.containsKey(target)) {
+			targetID = randomString();
+			idMap.put(target, targetID);
+		} else {
+			targetID = idMap.get(target);
+		}
+		for (String key : keys) {
+			Value val = target.getAttributeValue(key);
+			if(val instanceof Atomic	) {
+				String valID;
+				Atomic atoVal = (Atomic) val;
+				if(!idMap.containsKey(atoVal)) {
+					valID = randomString();
+					idMap.put(atoVal, valID);
+				} else {
+					valID = idMap.get(atoVal);
+				}
+				System.out.println(String.format("tree: %s %s", targetID, valID));
+				System.out.println(String.format("atomic: %s %s", valID, atoVal.getValue()));
+			} else if(val instanceof SemanticForm) {
+				String valID;
+				SemanticForm semVal = (SemanticForm) val;
+				if(!idMap.containsKey(semVal)) {
+					valID = randomString();
+					idMap.put(semVal, valID);
+				} else {
+					valID = idMap.get(semVal);
+				}
+				System.out.println(String.format("tree: %s %s", targetID, valID));
+				System.out.println(String.format("sem: %s %s", valID, semVal.getPred()));
+				List<String> argList = Arrays.asList(
+						((SemanticForm) val).getStringArgs());
+				for(String i: argList) {
+					System.out.println(String.format("arg: %s %s", valID, i));
+				}
+			} else if(val instanceof AttributeValueMatrix) {
+				toRelational((AttributeValueMatrix) val, idMap);
+			} else if(val instanceof SetOfAttributeValueMatrix) {
+				Set<AttributeValueMatrix> avmset = ((SetOfAttributeValueMatrix) val)
+						.getSet();
+				for (AttributeValueMatrix i : avmset) {
+					toRelational((AttributeValueMatrix) i, idMap);
+				}
+			}
+			System.out.println(String.format("fstruct: %s %s", idMap.get(key), key));
+		}
+	}
+
+	private static String randomString() {
+		char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+		StringBuilder sb = new StringBuilder();
+		Random random = new Random();
+		for (int i = 0; i < 20; i++) {
+			char c = chars[random.nextInt(chars.length)];
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		try {

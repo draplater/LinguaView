@@ -620,13 +620,10 @@ class TabbedPaneFrame extends JFrame {
 
 		// Read LFG default config from default config file
 		String defaultLFGStr = "";
-		try (Scanner scanner = new Scanner(
-				new File("raw/default_lfg.xml"))) {
+		try (Scanner scanner = new Scanner(getClass().
+				getResourceAsStream("/raw/default_lfg.xml"))) {
 			// Read all content from file.
 			defaultLFGStr = scanner.useDelimiter("\\A").next();
-		} catch (FileNotFoundException e) {
-			System.err.println("Internal example not found.");
-			System.exit(1);
 		}
 
 		try {

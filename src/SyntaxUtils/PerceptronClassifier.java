@@ -137,17 +137,17 @@ public class PerceptronClassifier extends PatriciaTrie<String, Integer> {
 		featSet.put("润物细无声");
 		featSet.put("润物细无声");
 		
-		LogInfo.logs(featSet);
+		// LogInfo.logs(featSet);
 		
-		LogInfo.logs(weight);
+		// LogInfo.logs(weight);
 		
-		LogInfo.logs(weight.score(featSet));
+		// LogInfo.logs(weight.score(featSet));
 		weight.plus(featSet);
-		LogInfo.logs(weight);
-		LogInfo.logs(weight.score(featSet));		
+		// LogInfo.logs(weight);
+		// LogInfo.logs(weight.score(featSet));
 		weight.put("润物细无声", 1);
-		LogInfo.logs(weight);
-		LogInfo.logs(weight.score(featSet));
+		// LogInfo.logs(weight);
+		// LogInfo.logs(weight.score(featSet));
 		
 		PatriciaTrie<String, Integer> feat = new PatriciaTrie<String, Integer>(StringKeyAnalyzer.CHAR);
 		feat.put("抽烟", 1);

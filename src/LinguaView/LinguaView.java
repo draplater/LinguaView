@@ -757,8 +757,10 @@ class TabbedPaneFrame extends JFrame {
 				constcomponent.init();
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in constituent tree part.");
+				statusBar.setMessage("Previous sentence load failed. " +
+						"Please check for problems in constituent tree part.");
 				constcomponent.replaceCurrentSentence(defaultConstTreebank);
 				constcomponent.init();
 			}
@@ -810,8 +812,10 @@ class TabbedPaneFrame extends JFrame {
 				CCGcomponent.init();
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in CCG part.");
+				statusBar.setMessage("Previous sentence load failed. " +
+						"Please check for problems in CCG part.");
 				CCGcomponent.replaceCurrentSentence(defaultCCGTreebank);
 				CCGcomponent.init();
 			}
@@ -823,8 +827,10 @@ class TabbedPaneFrame extends JFrame {
 				LFGcomponent.init();
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in LFG part.");
+				statusBar.setMessage("Previous sentence load failed. " +
+						"Please check for problems in LFG part.");
 				LFGcomponent.replaceCurrentSentence(defaultLFGStructbank);
 				LFGcomponent.init();
 			}
@@ -919,13 +925,15 @@ class TabbedPaneFrame extends JFrame {
 				LFGcomponent.init();
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in LFG part.");
+				statusBar.setMessage("Next sentence load failed. " +
+						"Please check for problems in LFG part.");
 				LFGcomponent.replaceCurrentSentence(defaultLFGStructbank);
 				LFGcomponent.init();
 			}
 		}
-		
+
 		// note that the sentenceNumber starts from 0 
 		// but the display on the status bar starts from 1
 		if(Success) {
@@ -1012,8 +1020,9 @@ class TabbedPaneFrame extends JFrame {
 				LFGcomponent.init();
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in LFG part.");
+				statusBar.setMessage("Cannot jump sentance. Please check for problems in LFG part.");
 			}
 		}
 		
@@ -1185,9 +1194,11 @@ class TabbedPaneFrame extends JFrame {
 							LFGStructbank.add((Element) sentElement);
 							LFGStructAdded = true;
 						} catch (Exception e) {
+							e.printStackTrace();
 							Success = false;
 							statusBar
-									.setMessage("Please check for problems in LFG part.");
+									.setMessage("Can't load sentance from XML. " +
+											"Please check for problems in LFG part.");
 						}
 					}
 
@@ -1243,6 +1254,7 @@ class TabbedPaneFrame extends JFrame {
 				CCGTreebank.add(defaultCCGTreebank);
 			}
 			if (!LFGStructAdded) {
+				JOptionPane.showMessageDialog(this, "No LFG part found.");
 				LFGStructbank.add(defaultLFGStructbank);
 			}
 		}
@@ -1314,8 +1326,9 @@ class TabbedPaneFrame extends JFrame {
 					statusBar.setMessage("Invalid c-structure & f-structure correspondence detected.");
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				Success = false;
-				statusBar.setMessage("Please check for problems in LFG part.");
+				statusBar.setMessage("Cannot load LFGStructbank. Please check for problems in LFG part.");
 				LFGcomponent.replaceCurrentSentence(defaultLFGStructbank);
 				LFGcomponent.init();
 			}

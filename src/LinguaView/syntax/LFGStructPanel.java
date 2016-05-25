@@ -9,9 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,7 +50,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 	/**
 	 * a mapping from TSNodeLabel to the index of AVM, represents the correspondences
 	 */
-	Map<TSNodeLabel, Integer> CorrespondenceTable = new HashMap<TSNodeLabel, Integer>();
+	Map<ConstTree, Integer> CorrespondenceTable = new HashMap<ConstTree, Integer>();
 	/**
 	 * indicates whether the correspondence lines should be rendered in black or magenta
 	 */
@@ -199,10 +197,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 					AttributeValueMatrix realTargNode = AttributeValueMatrix
 							.getRealContent(targNode);
 					int j = fstruct.indexTable.get(realTargNode);
-					int Xs = cstruct.XMiddleArray[i]
-							+ (cstruct.XMiddleArray[i] - cstruct.XLeftArray[i])
-							+ 5;
-					int Ys = cstruct.YArray[i] - fontHight / 2;
+					int Xs = this.cstruct.XMiddleArray[i] + this.cstruct.nodeLengthsArray[i] / 2 + 5;
+					int Ys = this.cstruct.YTopArray[i] + this.fontHight / 2;
 					int Xe = fstruct.XLeftArray[j];
 					int Ye = (fstruct.YUpArray[j] + fstruct.YDownArray[j]) / 2;
 					drawRefLine(Xs, Ys, Xe, Ye, g2);
@@ -307,8 +303,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 			}
 		}
 		if (!constStr.isEmpty()) {
-			ArrayList<TSNodeLabel> cStructbank = new ArrayList<TSNodeLabel>();
-			TSNodeLabel cStructHead = new TSNodeLabel(constStr);
+			ArrayList<ConstTree> cStructbank = new ArrayList<ConstTree>();
+			ConstTree cStructHead = ConstTree.ConstTreeIO.ReadConstTree(constStr);
 			if(cStructHead.label != null) {
 				buildCorrepondenceTable(cStructHead);
 			}
@@ -345,7 +341,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 	 * 
 	 * @param headNode
 	 */
-	private void buildCorrepondenceTable(TSNodeLabel headNode) {
+	private void buildCorrepondenceTable(ConstTree headNode) {
+		/*
 		ArrayList<TSNodeLabel> L = headNode.collectAllNodes();
 		for (TSNodeLabel n : L) {
 			if (n.label().trim().matches("^[A-Za-z]*#[0-9]*$")) {
@@ -355,6 +352,20 @@ public class LFGStructPanel extends TreePanel<Element> {
 				n.label = labelOrig;
 				CorrespondenceTable.put(n, Integer.parseInt(idStr));
 			}
+		}*/
+		List L = headNode.constSubTreeList();
+		Iterator var4 = L.iterator();
+
+		while(var4.hasNext()) {
+			ConstTree n = (ConstTree)var4.next();
+			if(((String)n.getLabel()).trim().matches("^[A-Za-z]*#[0-9]*$")) {
+				String[] splittedParts = ((String)n.getLabel()).trim().split("#");
+				String labelOrig = splittedParts[0];
+				String idStr = splittedParts[1];
+				n.setLabel(labelOrig);
+				this.CorrespondenceTable.put(n, Integer.valueOf(Integer.parseInt(idStr)));
+			}
 		}
+
 	}
 }

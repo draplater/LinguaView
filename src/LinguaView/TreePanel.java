@@ -49,7 +49,8 @@ public abstract class TreePanel<T> extends JPanel {
 	public int smallfontHight, fontHight, doubleFontHight, tripleFontHight;
 	public double levelSize;
 	public double levelSizeFactor = 2.0;
-	
+	public int textTipMargin = 4;
+
 	public void loadTreebank(ArrayList<T> treebank) {
 		this.treebank = treebank;
 		lastIndex = treebank.size() - 1;

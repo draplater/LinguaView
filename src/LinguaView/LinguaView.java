@@ -7,8 +7,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import java.awt.event.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -118,7 +116,7 @@ class TabbedPaneFrame extends JFrame {
 	/**
 	 * default treebanks that are shown as default or when error occurs
 	 */
-	TSNodeLabel defaultConstTreebank;
+	ConstTree defaultConstTreebank;
 	DepTree defaultDepTreebank;
 	DepTree defaultDeepdepTreebank;
 	CCGNode defaultCCGTreebank;
@@ -551,13 +549,13 @@ class TabbedPaneFrame extends JFrame {
 		tabbedPane.addTab("Text Editor", null, null);
 
 		// default constTree initialization
-		ArrayList<TSNodeLabel> constTreebank = new ArrayList<TSNodeLabel>();
+		ArrayList<ConstTree> constTreebank = new ArrayList<>();
 		String defaultConstStr = "( (S (NP-SBJ (NP (NNP Pierre) (NNP Vinken) ) (, ,)"
 				+ " (ADJP (NP (CD 61) (NNS years) ) (JJ old) ) (, ,) )"
 				+ " (VP (MD will) (VP (VB join) (NP (DT the) (NN board) )"
 				+ " (PP-CLR (IN as) (NP (DT a) (JJ nonexecutive) (NN director) ))"
 				+ " (NP-TMP (NNP Nov.) (CD 29) ))) (. .) ))";
-		defaultConstTreebank = new TSNodeLabel(defaultConstStr);
+		defaultConstTreebank = ConstTree.ConstTreeIO.ReadConstTree(defaultConstStr);
 		constTreebank.add(defaultConstTreebank);
 		constcomponent.loadTreebank(constTreebank);
 		constcomponent.init();
@@ -1049,7 +1047,7 @@ class TabbedPaneFrame extends JFrame {
 				Sentences.add((Element) child);
 			}
 		}
-		ArrayList<TSNodeLabel> constTreebank = new ArrayList<TSNodeLabel>();
+		ArrayList<ConstTree> constTreebank = new ArrayList<ConstTree>();
 		ArrayList<DepTree> depTreebank = new ArrayList<DepTree>();
 		ArrayList<DepTree> deepdepTreebank = new ArrayList<DepTree>();
 		ArrayList<CCGNode> CCGTreebank = new ArrayList<CCGNode>();
@@ -1099,8 +1097,7 @@ class TabbedPaneFrame extends JFrame {
 								}
 							}
 							if (!constStr.trim().isEmpty()) {
-								TSNodeLabel constTree = new TSNodeLabel(
-										constStr);
+								ConstTree constTree = ConstTree.ConstTreeIO.ReadConstTree(constStr);
 								constTreebank.add(constTree);
 							}
 							else {

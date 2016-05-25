@@ -1,0 +1,36 @@
+<lfg><cstruct>( (S#1 (NP#2 (NP#2 (NNP Pierre) (NNP Vinken) ) (, ,)
+        (ADJP (NP (CD 61) (NNS years) ) (JJ old) ) (, ,) ) (VP (MD will) (VP#1 (VB join)
+        (NP (DT the) (NN board) ) (PP (IN as) (NP (DT a) (JJ nonexecutive) (NN director) )) 
+        (NP-TMP (NNP Nov.) (CD 29) ))) (. .) ))</cstruct>
+    <fstruct id="1"><attr name="PRED" valtype="sem"> 'join(SUBJ,OBJ,XCOMP)' </attr>
+        <attr name="SUBJ" valtype="fstruct">
+            <fstruct id="2"><attr name="PRED" valtype="sem"> 'vinken' </attr>
+                <attr name="NUM" valtype="atomic"> SG </attr>
+                <attr name="ADJ" valtype="set">
+                    <fstruct id="3"><attr name="PRED" valtype="sem"> 'pierre' </attr></fstruct>
+                    <fstruct id="4"><attr name="PRED" valtype="sem"> 'old(SPEC)' </attr>
+                        <attr name="SPEC" valtype="fstruct">
+                            <fstruct id="5"><attr name="PRED" valtype="sem"> 'year(SPEC)' </attr>
+                                <attr name="SPEC" valtype="fstruct">
+                                    <fstruct id="6"><attr name="PRED" valtype="sem"> '61' </attr>
+        </fstruct></attr></fstruct></attr></fstruct></attr></fstruct></attr>
+        <attr name="OBJ" valtype="fstruct">
+            <fstruct id="7"><attr name="PRED" valtype="sem"> 'broad' </attr>
+                <attr name="DEF" valtype="atomic"> + </attr>
+                <attr name="NUM" valtype="atomic"> SG </attr></fstruct></attr>
+        <attr name="XCOMP" valtype="fstruct">
+            <fstruct id="8"><attr name="PRED" valtype="sem"> 'as(OBJ)' </attr>
+                <attr name="OBJ" valtype="fstruct">
+                    <fstruct id="9"><attr name="PRED" valtype="sem"> 'director' </attr>
+                        <attr name="NUM" valtype="atomic"> SG </attr>
+                        <attr name="ADJ" valtype="set">
+                            <fstruct id="10"><attr name="PRED" valtype="sem"> 'nonexecutive' </attr>
+        </fstruct></attr><attr name="DEF" valtype="atomic"> + </attr></fstruct></attr></fstruct></attr>
+        <attr name="TENSE" valtype="atomic"> FUTURE </attr>
+        <attr name="ADJ" valtype="set">
+            <fstruct id="11"><attr name="PRED" valtype="set">
+                    <fstruct id="12"><attr name="PRED" valtype="sem"> 'Nov.' </attr>
+                        <attr name="TIME" valtype="atomic"> + </attr></fstruct>
+                    <fstruct id="13"><attr name="PRED" valtype="sem"> '29' </attr>
+                        <attr name="TIME" valtype="atomic"> + </attr></fstruct></attr>
+</fstruct></attr></fstruct></lfg>

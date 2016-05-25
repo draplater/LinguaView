@@ -39,21 +39,27 @@ public class LinguaView {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				JFrame frame = new TabbedPaneFrame();
 				try {
+					// Use system default style.
+					UIManager.setLookAndFeel(UIManager.
+							getSystemLookAndFeelClassName());
+
+					// Use gtk style in Linux
 					for (LookAndFeelInfo info : UIManager
 							.getInstalledLookAndFeels()) {
-						if ("Nimbus".equals(info.getName())) {
+						if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(info.getName())) {
 							UIManager.setLookAndFeel(info.getClassName());
 							break;
 						}
 					}
+
 				} catch (Exception e) {
 					// If Nimbus is not available, you can set the GUI to
 					// another look and feel.
 					e.printStackTrace();
 				}
 
+				JFrame frame = new TabbedPaneFrame();
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
 			}
@@ -152,7 +158,7 @@ class TabbedPaneFrame extends JFrame {
 
 	public TabbedPaneFrame() {
 		// deal with the panel: size, font, layout, etc.
-		setTitle("LinguaView");
+		setTitle("LinguaView 1.0.4");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
 		int screenHeight = screenSize.height;
@@ -1423,15 +1429,14 @@ class TabbedPaneFrame extends JFrame {
 	 */
 	class ImportItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(new File("."));
-			int result = chooser.showOpenDialog(TabbedPaneFrame.this);
-			if (chooser.getSelectedFile() != null && result == 0) {
+			String fPath = Utils.fileSelection(false);
+			if (fPath != null) {
 				try {
-					if (!chooser.getSelectedFile().exists()) {
-						chooser.getSelectedFile().createNewFile();
+					File f = new File(fPath);
+					if (!f.exists()) {
+						f.createNewFile();
 						BufferedWriter in = new BufferedWriter(new FileWriter(
-								chooser.getSelectedFile()));
+								f));
 						in.write("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 						in.write("<viewer>\n");
 						in.write("\t<sentence id=\"1\">\n");
@@ -1442,8 +1447,7 @@ class TabbedPaneFrame extends JFrame {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				filename = chooser.getSelectedFile().getAbsolutePath();
-				importFromFile(filename);
+				importFromFile(fPath);
 			}
 		}
 	}
@@ -1653,11 +1657,8 @@ class TabbedPaneFrame extends JFrame {
 	class SaveTextAsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
 			if (filename != null) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.setCurrentDirectory(new File("."));
-				int result = chooser.showSaveDialog(TabbedPaneFrame.this);
-				filename = chooser.getSelectedFile().getAbsolutePath();
-				if(result == 0) {
+				filename = Utils.fileSelection(true);
+				if(filename != null) {
 					try {
 						String File = Textcomponent.getText();
 						if (filename != null && !filename.trim().isEmpty()) {

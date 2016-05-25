@@ -2,11 +2,9 @@ package LinguaView.UIutils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -28,12 +26,9 @@ public class FileLocPanel extends JPanel
 	}
 	
 	public void BrowseFile() {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new File("."));
-		int result = chooser.showSaveDialog(this);
-		if(result == 0) {
-			String FileLoc = chooser.getSelectedFile().getAbsolutePath();
-			LocTextComponent.setText(FileLoc);
+		String filename = Utils.fileSelection(true);
+		if(filename != null) {
+			LocTextComponent.setText(filename);
 		}
 	}
 	

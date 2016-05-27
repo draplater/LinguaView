@@ -335,7 +335,6 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 */
 	public void loadSentence() {
 		AttributeValueMatrix headNode = treebank.get(sentenceNumber);
-		AttributeValueMatrix.toRelational(headNode, null);
 		RefList = headNode.getRefList();
 		indexTable = new IdentityHashMap<AttributeValueMatrix, Integer>();
 		nodesCount = headNode.countAllNodes();

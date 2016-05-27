@@ -7,8 +7,8 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
@@ -643,6 +643,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGStructbank.add(defaultLFGStructbank);
 			LFGcomponent.loadTreebank(LFGStructbank);
 			LFGcomponent.init();
+			checkLFGValid();
 			LFGcomponent.setBackground(Color.WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -826,6 +827,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber--;
 			try {
 				LFGcomponent.init();
+				checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -924,6 +926,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber++;
 			try {
 				LFGcomponent.init();
+				checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -1019,6 +1022,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				LFGcomponent.init();
+				checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -1321,10 +1325,12 @@ class TabbedPaneFrame extends JFrame {
 			try {
 				LFGcomponent.loadTreebank(LFGStructbank);
 				LFGcomponent.init();
+
 				if(!LFGcomponent.isAllRefValid()) {
 					Success = false;
 					statusBar.setMessage("Invalid c-structure & f-structure correspondence detected.");
 				}
+				checkLFGValid();
 			} catch (Exception e) {
 				e.printStackTrace();
 				Success = false;
@@ -1857,6 +1863,23 @@ class TabbedPaneFrame extends JFrame {
 					}
 				}
 			}
+		}
+	}
+
+	private void checkLFGValid() {
+		List<AttributeValueMatrix.FStructCheckResult> lackList = LFGcomponent.isPredValid();
+		if(lackList != null) {
+			String tipString = "Imcomplete governable grammatical functions: ";
+			// join with ", "
+			for(int j=0; j<lackList.size(); j++) {
+				AttributeValueMatrix.FStructCheckResult item = lackList.get(j);
+				tipString += String.format("%s of %s", item.reason, item.pred);
+				if(j != lackList.size() - 1)
+					tipString += ", ";
+				else
+					tipString += ".";
+			}
+			JOptionPane.showMessageDialog(this, tipString);
 		}
 	}
 

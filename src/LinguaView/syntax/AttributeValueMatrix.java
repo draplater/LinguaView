@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.sql.*;
 import java.util.*;
 
+import LinguaView.UIutils.Utils;
 import fig.basic.DeepCloneable;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -672,61 +674,195 @@ public class AttributeValueMatrix extends Value implements
 
 	/**
 	 * Convert AVM to relational representation.
-	 */
-	public static void toRelational(AttributeValueMatrix target, Map<Value, String> idMap) {
-		if(idMap == null) {
-			idMap = new HashMap<>();
-			String targetID = randomString();
-			idMap.put(target, targetID);
-			System.out.println(String.format("root: %s", targetID));
+	 * @return a sqlite memory database represent this F-structure.
+     */
+	public Connection toRelational() {
+		AttributeValueMatrix avm = this;
+		if(!avm.isContentOrPointer)
+			avm = getRealContent(avm);
+		return toRelational(avm, null, null);
+	}
+
+	/**
+	 * Internal realization of toRelational.
+	 * @param target F-structure to convert.
+	 * @param idMap a map storing uid of each node.
+	 * @param connection sqlite memory database to store relation representation.
+     * @return the same with @param connection.
+     */
+	private static Connection toRelational(AttributeValueMatrix target,
+									Map<Value, String> idMap,
+									Connection connection) {
+		try {
+			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
 		}
-		Set<String> keys = target.getAllAttributeNames();
-		String targetID;
-		if(!idMap.containsKey(target)) {
-			targetID = randomString();
-			idMap.put(target, targetID);
-		} else {
-			targetID = idMap.get(target);
-		}
-		for (String key : keys) {
-			Value val = target.getAttributeValue(key);
-			if(val instanceof Atomic	) {
-				String valID;
-				Atomic atoVal = (Atomic) val;
-				if(!idMap.containsKey(atoVal)) {
-					valID = randomString();
-					idMap.put(atoVal, valID);
-				} else {
-					valID = idMap.get(atoVal);
+		try {
+			if(connection == null) {
+				// connection = DriverManager.getConnection(String.format("jdbc:sqlite:%s.db",
+				// 		randomString()));
+				connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+				connection.setAutoCommit(false);
+				Statement statement = connection.createStatement();
+				statement.executeUpdate("create table tree(source_id char(32), target_id char(32), key char(32));" +
+						"create table atomic(uid char(32), value char(32));" +
+						"create table sem(uid char(32), pred char(32));" +
+						"create table fstruct(uid char(32));" +
+						"create table `set`(source_id char(32), target_id char(32));" +
+						"create table arg(uid char(32), value char(32));"
+				);
+			}
+			PreparedStatement addTree = connection.prepareStatement("insert into tree values(? ,?, ?)");
+			PreparedStatement addAtomic = connection.prepareStatement("insert into atomic values(? ,?)");
+			PreparedStatement addSem = connection.prepareStatement("insert into sem values(? ,?)");
+			PreparedStatement addFstruct = connection.prepareStatement("insert into sem values(? ,?)");
+			PreparedStatement addSet = connection.prepareStatement("insert into `set` values(? ,?)");
+			PreparedStatement addArg = connection.prepareStatement("insert into arg values(? ,?)");
+
+			String targetID;
+			if(!target.isRealContent) return null;
+			if(idMap == null) {
+				idMap = new HashMap<>();
+				targetID = logToIDMap(idMap, target);
+				Utils.logger.info(String.format("head: %s", targetID));
+			} else {
+				targetID = logToIDMap(idMap, target);
+			}
+
+			for (String key : target.getAllAttributeNames()) {
+				Value val = target.getAttributeValue(key);
+				if(val instanceof AttributeValueMatrix) {
+					if(!((AttributeValueMatrix)val).isContentOrPointer)
+						val = getRealContent((AttributeValueMatrix) val);
 				}
-				System.out.println(String.format("tree: %s %s", targetID, valID));
-				System.out.println(String.format("atomic: %s %s", valID, atoVal.getValue()));
-			} else if(val instanceof SemanticForm) {
-				String valID;
-				SemanticForm semVal = (SemanticForm) val;
-				if(!idMap.containsKey(semVal)) {
-					valID = randomString();
-					idMap.put(semVal, valID);
-				} else {
-					valID = idMap.get(semVal);
-				}
-				System.out.println(String.format("tree: %s %s", targetID, valID));
-				System.out.println(String.format("sem: %s %s", valID, semVal.getPred()));
-				List<String> argList = Arrays.asList(
-						((SemanticForm) val).getStringArgs());
-				for(String i: argList) {
-					System.out.println(String.format("arg: %s %s", valID, i));
-				}
-			} else if(val instanceof AttributeValueMatrix) {
-				toRelational((AttributeValueMatrix) val, idMap);
-			} else if(val instanceof SetOfAttributeValueMatrix) {
-				Set<AttributeValueMatrix> avmset = ((SetOfAttributeValueMatrix) val)
-						.getSet();
-				for (AttributeValueMatrix i : avmset) {
-					toRelational((AttributeValueMatrix) i, idMap);
+				String valueID = logToIDMap(idMap, val);
+				Utils.logger.info(String.format("tree: %s %s %s", targetID, valueID, key));
+				addTree.setString(1, targetID);
+				addTree.setString(2, valueID);
+				addTree.setString(3, key);
+				addTree.executeUpdate();
+				if(val instanceof Atomic) {
+					Atomic atoVal = (Atomic) val;
+					Utils.logger.info(String.format("node: atomic %s %s", valueID, atoVal.getValue()));
+					addAtomic.setString(1, valueID);
+					addAtomic.setString(2, atoVal.getValue());
+					addAtomic.executeUpdate();
+				} else if(val instanceof SemanticForm) {
+					SemanticForm semVal = (SemanticForm) val;
+					Utils.logger.info(String.format("node: sem %s %s", valueID, semVal.getPred()));
+					addSem.setString(1, valueID);
+					addSem.setString(2, semVal.getPred());
+					addSem.executeUpdate();
+					List<String> argList = Arrays.asList(
+							((SemanticForm) val).getStringArgs());
+					for(String i: argList) {
+						Utils.logger.info(String.format("arg: %s %s", valueID, i));
+						addArg.setString(1, valueID);
+						addArg.setString(2, i);
+						addArg.executeUpdate();
+					}
+				} else if(val instanceof AttributeValueMatrix) {
+					AttributeValueMatrix avmVal = (AttributeValueMatrix) val;
+					Utils.logger.info(String.format("node: fstruct %s", valueID));
+					addFstruct.setString(1, valueID);
+					addFstruct.executeUpdate();
+					toRelational(avmVal, idMap, connection);
+				} else if(val instanceof SetOfAttributeValueMatrix) {
+					Set<AttributeValueMatrix> avmset = ((SetOfAttributeValueMatrix) val)
+							.getSet();
+					Utils.logger.info(String.format("node: set %s %s", valueID, key));
+					for (AttributeValueMatrix i : avmset) {
+						if(!i.isContentOrPointer)
+							i = getRealContent(i);
+						String matID = logToIDMap(idMap, i);
+						Utils.logger.info(String.format("tree: %s %s %s", targetID, matID, key));
+						addTree.setString(1, targetID);
+						addTree.setString(2, valueID);
+						addTree.setString(3, key);
+						addTree.executeUpdate();
+						Utils.logger.info(String.format("set: %s %s", valueID, matID));
+						Utils.logger.info(String.format("node: fstruct %s", matID));
+						addFstruct.setString(1, matID);
+						addFstruct.executeUpdate();
+						toRelational(i, idMap, connection);
+					}
 				}
 			}
-			System.out.println(String.format("fstruct: %s %s", idMap.get(key), key));
+
+			connection.commit();
+			return connection;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * get the id of tree object
+	 * @param idMap
+	 * @param val
+     * @return
+     */
+	private static String logToIDMap(Map<Value, String> idMap, Value val) {
+		String valueID;
+		if(!idMap.containsKey(val)) {
+			valueID = randomString();
+			idMap.put(val, valueID);
+		} else {
+			valueID = idMap.get(val);
+		}
+		return valueID;
+	}
+
+	/**
+	 * A tuple represent an error of incomplete pred.
+	 */
+	public class FStructCheckResult {
+		/**
+		 * The pred which lack argument correspondence.
+		 */
+		public String pred;
+		/**
+		 * The argument whose correspondence is lacked.
+		 */
+		public String reason;
+		FStructCheckResult(String _pred, String _reason) {
+			pred = _pred;
+			reason = _reason;
+		}
+	}
+
+
+	/**
+	 * Check whether the governable grammatical functions of predicate
+	 * sin this F-structure is complete.
+	 * @return A list represent error. If no error is found, will @return null;
+     */
+	public List<FStructCheckResult> isFStructValid() {
+		List<FStructCheckResult> ret = new ArrayList<>();
+		Connection con = toRelational();
+		try {
+			Statement statement = con.createStatement();
+			ResultSet rs = statement.executeQuery(
+					"select sem.pred, arg.value from " +
+							"arg left join sem on arg.uid = sem.uid " +
+							"left join tree A on target_id = sem.uid " +
+							"where not exists( " +
+							"select * from tree B " +
+							"where A.source_id == B.source_id " +
+							"and arg.value = B.key);");
+			while(rs.next()) {
+				ret.add(new FStructCheckResult(rs.getString(1), rs.getString(2)));
+			}
+			if(ret.isEmpty()) {
+				return null;
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

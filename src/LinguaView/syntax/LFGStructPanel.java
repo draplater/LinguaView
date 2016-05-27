@@ -223,6 +223,11 @@ public class LFGStructPanel extends TreePanel<Element> {
 		}
 		return true;
 	}
+
+	public List<AttributeValueMatrix.FStructCheckResult> isPredValid() {
+		AttributeValueMatrix headNode = fstruct.treebank.get(0);
+		return headNode.isFStructValid();
+	}
 	
 	/**
 	 * draw correspondence line with arrow from (x1, y1) to (x2, y2)

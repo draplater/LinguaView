@@ -155,66 +155,35 @@ public class AttributeValueMatrix extends Value implements
 	public ArrayList<AttributeValueMatrix> getRefList() {
 		return RefList;
 	}
-	
-	/**
-	 * Import a complete functional structure with a structured xmlString
-	 * 
-	 * @param xmlString
-	 * @return
-	 */
-	public static AttributeValueMatrix parseXMLSentence(String xmlString) {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			InputStream stream = new ByteArrayInputStream(
-					xmlString.getBytes("UTF-8"));
-			Document doc = builder.parse(stream);
-			Element docRoot = doc.getDocumentElement();
-			AttributeValueMatrix root = recursiveParse(docRoot);
-			
-			for(AttributeValueMatrix avm: Checklist) {
-				Attribute contentAttr = avm.Attrs.get("content");
-				Attribute pointerAttr = avm.Attrs.get("pointer");
-				if(AVMChart.get(avm.id) != null) {
-					avm.Pairs.put(pointerAttr, AVMChart.get(avm.id));
-					AttributeValueMatrix content = (AttributeValueMatrix) avm.Pairs.get(contentAttr);
-					content.isRealContent = false;
-					avm.Pairs.put(contentAttr, content);
-					avm.id = -(++LargestID);
-					root.RefList.add(avm);
-				}
-				AttributeValueMatrix content = (AttributeValueMatrix) avm.Pairs.get(contentAttr);
-				AttributeValueMatrix pointer = (AttributeValueMatrix) avm.Pairs.get(pointerAttr);
-				AVMChart.put(avm.id, avm);
-				AVMChart.put(content.id, content);
-				AVMChart.put(pointer.id, pointer);
-			}
-			
-			root.isRoot = true;
-			root.Nodes.putAll(AVMChart);
-			Checklist.clear();
-			AVMChart.clear();
-			return root;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 
 	/**
 	 * Import a complete functional structure with a list of structured
 	 * xmlString This is designed to facilitate importing data from files.
-	 * 
+	 *
 	 * @param lines
 	 * @return
 	 */
 	public static AttributeValueMatrix parseXMLSentence(List<String> lines) {
-		String xmlString = new String();
+		String xmlString = "";
 		for (String line : lines) {
 			xmlString += line;
 		}
-		return parseXMLSentence(xmlString);
+		DocumentBuilderFactory factory = DocumentBuilderFactory
+				.newInstance();
+		DocumentBuilder builder = null;
+		try {
+			builder = factory.newDocumentBuilder();
+			InputStream stream = new ByteArrayInputStream(
+					xmlString.getBytes("UTF-8"));
+			Document doc = builder.parse(stream);
+			Element docRoot = doc.getDocumentElement();
+			return parseXMLSentence(docRoot);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+			return null;
+		}
 	}
 
 	/**

@@ -1,10 +1,19 @@
 package LinguaView.syntax;
 
+import java.util.Random;
+
 public class Value {
 	public enum ValueType {
 		SEM_FORM,
 		AVM,
 		SET_OF_AVM
+	}
+
+	int hash;
+
+	Value() {
+		Random rn = new Random();
+		hash = rn.nextInt();
 	}
 	
 	public ValueType type() {
@@ -16,5 +25,10 @@ public class Value {
 			return ValueType.SEM_FORM;
 		else 
 			return null;
+	}
+
+	@Override
+	public int hashCode() {
+		return hash;
 	}
 }

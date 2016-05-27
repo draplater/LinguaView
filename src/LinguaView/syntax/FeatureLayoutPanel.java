@@ -136,24 +136,33 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 					else if (Val instanceof SemanticForm) {
 						YPos += fontHight;
 						// join the args with comma
-						List<String> argList = Arrays.asList(
-								((SemanticForm) Val).getStringArgs());
+						String[] semArgList = ((SemanticForm) Val).getSemanticArgs();
+						String[] nonSemArgList = ((SemanticForm) Val).getNonSemanticArgs();
 						String argsString = "";
+						String nonSemArgsString = " "; // fill an space
 
 						// join with ", "
-						for(int j=0; j<argList.size(); j++) {
-							argsString += argList.get(j);
-							if(j != argList.size() - 1)
+						for(int j=0; j<semArgList.length; j++) {
+							argsString += semArgList[j];
+							if(j != semArgList.length - 1)
 								argsString += ", ";
+						}
+
+						// join with ", "
+						for(int j=0; j<nonSemArgList.length; j++) {
+							nonSemArgsString += nonSemArgList[j];
+							if(j != nonSemArgList.length - 1)
+								nonSemArgsString += ", ";
 						}
 
 						// add <> into argsString
 						if(!argsString.isEmpty())
 							argsString = String.format("<%s>", argsString);
 
-						String sfStr = String.format("'%s%s'",
+						String sfStr = String.format("'%s%s%s'",
 								((SemanticForm) Val).getPred(), // pred word itself
-								argsString // args shown as <xxx, xxx>
+								argsString, // args shown as <xxx, xxx>
+								nonSemArgsString //
 								);
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(sfStr, XBoarderLineArray[i], YPos);

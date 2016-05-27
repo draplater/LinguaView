@@ -1,21 +1,29 @@
 package LinguaView.syntax;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class SemanticForm extends Value{
 	private String predicate = new String();
-	private Set<Attribute> arguments = new LinkedHashSet<Attribute>();
+	private Set<Argument> arguments = new LinkedHashSet<Argument>();
 	
 	public SemanticForm() {
 		
 	}
 	
-	public SemanticForm(String pred, String[] args) {
+	public SemanticForm(String pred, Argument[] args) {
 		setPred(pred);
-		for(String arg: args) {
-			Attribute attr = new Attribute(arg);
-			addArgs(attr);
+		for(Argument arg: args) {
+			arguments.add(arg);
+		}
+	}
+
+	public SemanticForm(String pred, Set<Argument> args) {
+		setPred(pred);
+		for(Argument arg: args) {
+			arguments.add(arg);
 		}
 	}
 	
@@ -41,8 +49,8 @@ public class SemanticForm extends Value{
 		}
 	}
 	
-	private boolean argsContainAll(Set<Attribute> otherargs) {
-		for(Attribute otherarg: otherargs) {
+	private boolean argsContainAll(Set<Argument> otherargs) {
+		for(Argument otherarg: otherargs) {
 			if(!argContains(otherarg)) {
 				return false;
 			}
@@ -50,8 +58,8 @@ public class SemanticForm extends Value{
 		return true;
 	}
 	
-	private boolean argContains(Attribute otherarg) {
-		for(Attribute arg: arguments) {
+	private boolean argContains(Argument otherarg) {
+		for(Argument arg: arguments) {
 			if(arg.equals(otherarg)) {
 				return true;
 			}
@@ -63,30 +71,45 @@ public class SemanticForm extends Value{
 		return predicate;
 	}
 	
-	public Set<Attribute> getArgs() {
+	public Set<Argument> getArgs() {
 		return arguments;
 	}
 	
 	public String[] getStringArgs() {
 		String[] args = new String[arguments.size()];
 		int i = 0;
-		for(Attribute argInAttr: arguments) {
+		for(Argument argInAttr: arguments) {
 			args[i] = argInAttr.getName();
 			i++;
 		}
 		return args;
+	}
+
+	public String[] getSemanticArgs() {
+		List<String> args = new ArrayList<>();
+		for(Argument argInAttr: arguments) {
+			if(argInAttr.isSematicRole()) {
+				args.add(argInAttr.getName());
+			}
+		}
+		return args.toArray(new String[args.size()]);
+	}
+
+	public String[] getNonSemanticArgs() {
+		List<String> args = new ArrayList<>();
+		for(Argument argInAttr: arguments) {
+			if(!argInAttr.isSematicRole()) {
+				args.add(argInAttr.getName());
+			}
+		}
+		return args.toArray(new String[args.size()]);
 	}
 	
 	public void setPred(String pred) {
 		predicate = pred;
 	}
 	
-	public void addArgs(Attribute attr) {
-		arguments.add(attr);
-	}
-	
-	public void addArgs(String arg) {
-		Attribute attr = new Attribute(arg);
-		arguments.add(attr);
+	public void addArgs(Argument arg) {
+		arguments.add(arg);
 	}
 }

@@ -292,11 +292,18 @@ public class AttributeValueMatrix extends Value implements
 					if (text.indexOf('(') != -1) {
 						sem.setPred(text.substring(text.indexOf('\'') + 1,
 								text.indexOf('(')));
-						text = text.substring(text.indexOf('(') + 1,
+						String semanticRole = text.substring(text.indexOf('(') + 1,
 								text.lastIndexOf(')'));
-						String[] args = text.split(",");
+						String[] args = semanticRole.split(",");
 						for (String arg : args) {
-							sem.addArgs(arg.trim());
+							if(!arg.trim().isEmpty())
+								sem.addArgs(new Argument(arg.trim(), true));
+						}
+						String nonSemanticRole = text.substring(text.indexOf(')') + 1,
+								text.length() - 1);
+						for (String arg : nonSemanticRole.split(",")) {
+							if(!arg.trim().isEmpty())
+								sem.addArgs(new Argument(arg.trim(), false));
 						}
 					}
 					else {
@@ -457,7 +464,7 @@ public class AttributeValueMatrix extends Value implements
 						if (otherFeature == null) {
 							SemanticForm newFeature = new SemanticForm(
 									((SemanticForm) feature).getPred(),
-									((SemanticForm) feature).getStringArgs());
+									((SemanticForm) feature).getArgs());
 							f1_real.Pairs.put(otherAttr, newFeature);
 						}
 						else if (otherFeature instanceof SemanticForm) {
@@ -659,7 +666,7 @@ public class AttributeValueMatrix extends Value implements
 	 * @return
 	 */
 	private SemanticForm recursiveClone(SemanticForm stub) {
-		return new SemanticForm(stub.getPred(), stub.getStringArgs());
+		return new SemanticForm(stub.getPred(), stub.getArgs());
 	}
 
 	/**

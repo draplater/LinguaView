@@ -1,11 +1,11 @@
 package LinguaView.syntax;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SemanticForm extends Value{
 	private String predicate = new String();
-	private Set<Attribute> arguments = new HashSet<Attribute>();
+	private Set<Attribute> arguments = new LinkedHashSet<Attribute>();
 	
 	public SemanticForm() {
 		

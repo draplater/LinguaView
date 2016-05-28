@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,5 +69,23 @@ public class Utils {
         if(returnVal == 0)
             return fc.getSelectedFile().getAbsolutePath();
         return null;
+    }
+
+    /**
+     * Implement of String.join in java 8
+     * @param with
+     * @param list
+     * @return
+     */
+    public static String join(String with, Collection<String> list) {
+        StringBuilder s = new StringBuilder();
+        for(String j: list) {
+            s.append(j);
+            s.append(with);
+        }
+        if(s.length() != 0) {
+            s.setLength(s.length() - with.length());
+        }
+        return s.toString();
     }
 }

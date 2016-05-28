@@ -1442,10 +1442,10 @@ class TabbedPaneFrame extends JFrame {
 	 */
 	class ImportItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			String fPath = Utils.fileSelection(false);
-			if (fPath != null) {
+			filename = Utils.fileSelection(false);
+			if (filename != null) {
 				try {
-					File f = new File(fPath);
+					File f = new File(filename);
 					if (!f.exists()) {
 						f.createNewFile();
 						BufferedWriter in = new BufferedWriter(new FileWriter(
@@ -1460,7 +1460,7 @@ class TabbedPaneFrame extends JFrame {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				importFromFile(fPath);
+				importFromFile(filename);
 			}
 		}
 	}

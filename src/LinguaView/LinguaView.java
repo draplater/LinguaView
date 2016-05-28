@@ -7,6 +7,9 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
 
@@ -156,6 +159,7 @@ class TabbedPaneFrame extends JFrame {
 	 */
 	StatusBar statusBar = new StatusBar();
 	private MetadataManager meta;
+	private String encoding;
 
 	public TabbedPaneFrame() {
 		// deal with the panel: size, font, layout, etc.
@@ -1386,9 +1390,10 @@ class TabbedPaneFrame extends JFrame {
 				DocumentBuilder builder = factory.newDocumentBuilder();
 				Document doc0 = builder.parse(new InputSource(new FileReader(
 						filename)));
+				encoding = doc0.getXmlEncoding();
 
 				new TextComponentLayout(Textcomponent, filename,
-						doc0.getXmlEncoding());
+						encoding);
 				Textcomponent.getDocument().addUndoableEditListener(
 						new XMLUndoableEditListener());
 				undoManager.discardAllEdits();
@@ -1396,10 +1401,10 @@ class TabbedPaneFrame extends JFrame {
 				Document doc = builder.parse(new InputSource(new BufferedReader(
 						new InputStreamReader(
 						new FileInputStream(filename),
-								doc0.getXmlEncoding()))
+								encoding))
 				));
 
-				meta = new MetadataManager(filename, doc0.getXmlEncoding());
+				meta = new MetadataManager(filename, encoding);
 				if(meta.isEmpty())
 					JOptionPane.showMessageDialog(this, "No metadata found.");
 
@@ -1646,18 +1651,7 @@ class TabbedPaneFrame extends JFrame {
 	 */
 	class SaveTextListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			try {
-				String File = Textcomponent.getText();
-				if (filename != null && !filename.trim().isEmpty()) {
-					BufferedWriter in = new BufferedWriter(new FileWriter(
-							filename));
-					in.write(File);
-					in.close();
-					importFromFile(filename);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			saveTo(filename, true);
 		}
 	}
 
@@ -1669,23 +1663,33 @@ class TabbedPaneFrame extends JFrame {
 	 */
 	class SaveTextAsListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			if (filename != null) {
-				filename = Utils.fileSelection(true);
-				if(filename != null) {
-					try {
-						String File = Textcomponent.getText();
-						if (filename != null && !filename.trim().isEmpty()) {
-							BufferedWriter in = new BufferedWriter(new FileWriter(
-									filename));
-							in.write(File);
-							in.close();
-							importFromFile(filename);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+			filename = Utils.fileSelection(true);
+			if(Files.exists(Paths.get(filename))) // File exist, backup it
+				saveTo(filename, true);
+			else
+				saveTo(filename, false);
+		}
+	}
+
+	/**
+	 * Save text to specify path.
+	 * @param path
+     */
+	private void saveTo(String path, boolean backup) {
+		try {
+			String text = Textcomponent.getText();
+			if (path != null && !path.trim().isEmpty()) {
+				if(backup)
+					Files.copy(Paths.get(path), Paths.get(path + ".bak"),
+							StandardCopyOption.REPLACE_EXISTING);
+				BufferedWriter in = new BufferedWriter(new OutputStreamWriter(
+						new FileOutputStream(path), encoding));
+				in.write(text);
+				in.close();
+				importFromFile(path);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

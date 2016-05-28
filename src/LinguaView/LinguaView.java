@@ -155,6 +155,7 @@ class TabbedPaneFrame extends JFrame {
 	 * it also shows warnings when something abnormal happens
 	 */
 	StatusBar statusBar = new StatusBar();
+	private MetadataManager meta;
 
 	public TabbedPaneFrame() {
 		// deal with the panel: size, font, layout, etc.
@@ -1050,7 +1051,7 @@ class TabbedPaneFrame extends JFrame {
 		ArrayList<Element> Sentences = new ArrayList<Element>();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
-			if (child instanceof Element) {
+			if (child.getNodeName().equals("sentence") && (child instanceof Element)) {
 				Sentences.add((Element) child);
 			}
 		}
@@ -1397,9 +1398,15 @@ class TabbedPaneFrame extends JFrame {
 						new FileInputStream(filename),
 								doc0.getXmlEncoding()))
 				));
+
+				meta = new MetadataManager(filename, doc0.getXmlEncoding());
+				if(meta.isEmpty())
+					JOptionPane.showMessageDialog(this, "No metadata found.");
+
 				importView(doc);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			statusBar.setMessage("Please check for problems in XML format.");
 		}
 	}

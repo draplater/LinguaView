@@ -725,8 +725,8 @@ public class AttributeValueMatrix extends Value implements
 			}
 			PreparedStatement addTree = connection.prepareStatement("insert into tree values(? ,?, ?)");
 			PreparedStatement addAtomic = connection.prepareStatement("insert into atomic values(? ,?)");
-			PreparedStatement addSem = connection.prepareStatement("insert into sem values(? ,?)");
-			PreparedStatement addFstruct = connection.prepareStatement("insert into sem values(? ,?)");
+			PreparedStatement addSem = connection.prepareStatement("insert into sem values(?, ?)");
+			PreparedStatement addFstruct = connection.prepareStatement("insert into fstruct values(?)");
 			PreparedStatement addSet = connection.prepareStatement("insert into `set` values(? ,?)");
 			PreparedStatement addArg = connection.prepareStatement("insert into arg values(? ,?)");
 
@@ -781,7 +781,6 @@ public class AttributeValueMatrix extends Value implements
 				} else if(val instanceof SetOfAttributeValueMatrix) {
 					Set<AttributeValueMatrix> avmset = ((SetOfAttributeValueMatrix) val)
 							.getSet();
-					Utils.logger.info(String.format("node: set %s %s", valueID, key));
 					for (AttributeValueMatrix i : avmset) {
 						if(!i.isContentOrPointer)
 							i = getRealContent(i);
@@ -791,7 +790,6 @@ public class AttributeValueMatrix extends Value implements
 						addTree.setString(2, valueID);
 						addTree.setString(3, key);
 						addTree.executeUpdate();
-						Utils.logger.info(String.format("set: %s %s", valueID, matID));
 						Utils.logger.info(String.format("node: fstruct %s", matID));
 						addFstruct.setString(1, matID);
 						addFstruct.executeUpdate();

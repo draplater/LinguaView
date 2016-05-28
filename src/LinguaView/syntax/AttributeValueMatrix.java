@@ -708,9 +708,11 @@ public class AttributeValueMatrix extends Value implements
 		}
 		try {
 			if(connection == null) {
-				// connection = DriverManager.getConnection(String.format("jdbc:sqlite:%s.db",
-				// 		randomString()));
-				connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+				if(Utils.isDebug)
+					connection = DriverManager.getConnection(String.format("jdbc:sqlite:%s.db",
+							randomString()));
+				else
+					connection = DriverManager.getConnection("jdbc:sqlite::memory:");
 				connection.setAutoCommit(false);
 				Statement statement = connection.createStatement();
 				statement.executeUpdate("create table tree(source_id char(32), target_id char(32), key char(32));" +

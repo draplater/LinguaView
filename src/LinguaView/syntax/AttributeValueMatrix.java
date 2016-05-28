@@ -873,6 +873,144 @@ public class AttributeValueMatrix extends Value implements
 		}
 	}
 
+	/**
+	 * Check whether grammatical functions which is governed by predicate is governable.
+	 * @return A list represent error. If no error is found, will @return null;
+	 */
+	public List<FStructCheckResult> checkGovernable(MetadataManager meta) {
+		List<FStructCheckResult> ret = new ArrayList<>();
+		Connection con = toRelational();
+		try {
+			Set<MetadataManager.GramFunc> gfList = meta.getGramFuncList();
+			List<String> nonGovernableList = new ArrayList<>();
+			for(MetadataManager.GramFunc i: gfList) {
+				if(!i.isGovernable()) {
+					nonGovernableList.add(i.getAbbreviate().toUpperCase());
+					nonGovernableList.add(i.getFull().toUpperCase());
+				}
+			}
+			Statement statement = con.createStatement();
+			String wordListString = "\"" + Utils.join("\",\"", nonGovernableList) + "\"";
+			ResultSet rs = statement.executeQuery(String.format("select sem.pred, arg.value " +
+					"from arg left join sem on arg.uid = sem.uid where arg.value in (%s);",
+					wordListString));
+			while(rs.next()) {
+				ret.add(new FStructCheckResult(rs.getString(1), rs.getString(2)));
+			}
+			if(ret.isEmpty()) {
+				return null;
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Check whether there are redundant governable grammatical functions.
+	 * @return A list represent error. If no error is found, will @return null;
+	 */
+	public List<String> checkCoherence(MetadataManager meta) {
+		List<String> ret = new ArrayList<>();
+		Connection con = toRelational();
+		try {
+			Set<MetadataManager.GramFunc> gfList = meta.getGramFuncList();
+			List<String> governableList = new ArrayList<>();
+			for(MetadataManager.GramFunc i: gfList) {
+				if(i.isGovernable()) {
+					governableList.add(i.getAbbreviate().toUpperCase());
+					governableList.add(i.getFull().toUpperCase());
+				}
+			}
+			String wordListString = "\"" + Utils.join("\",\"", governableList) + "\"";
+			Statement statement = con.createStatement();
+			// select nodes that are governable and not governed by a predicate.
+			ResultSet rs = statement.executeQuery(String.format("select tree.key from tree where not exists " +
+					"(select tree.key from sem left join arg on sem.uid = arg.uid where " +
+					"(select B.source_id from tree B where B.target_id = sem.uid) = tree.source_id " +
+					"and arg.value = tree.key) and tree.key in (%s);", wordListString));
+			while(rs.next()) {
+				ret.add(rs.getString(1));
+			}
+			if(ret.isEmpty()) {
+				return null;
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Check whether the names of grammatical functions are defined.
+	 * @return A list represent error. If no error is found, will @return null;
+	 */
+	public List<String> checkGramFuncName(MetadataManager meta) {
+		List<String> ret = new ArrayList<>();
+		Connection con = toRelational();
+		try {
+			Set<MetadataManager.GramFunc> gfList = meta.getGramFuncList();
+			Set<String> gfStringList = new LinkedHashSet<>();
+			for(MetadataManager.GramFunc i: gfList) {
+				gfStringList.add(i.getAbbreviate().toUpperCase());
+				gfStringList.add(i.getFull().toUpperCase());
+			}
+			String wordListString = "\"" + Utils.join("\",\"", gfStringList) + "\"";
+			Statement statement = con.createStatement();
+			// select fscruct nodes whose names are not in grammatical functions list.
+			ResultSet rs = statement.executeQuery(String.format(
+					"select key from tree where target_id in " +
+							"(select * from fstruct) and " +
+							"UPPER(key) not in (%s)", wordListString));
+			while(rs.next()) {
+				ret.add(rs.getString(1));
+			}
+			if(ret.isEmpty()) {
+				return null;
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * Check whether the names of features are defined.
+	 * @return A list represent error. If no error is found, will @return null;
+	 */
+	public List<String> checkFeatureName(MetadataManager meta) {
+		List<String> ret = new ArrayList<>();
+		Connection con = toRelational();
+		try {
+			Set<MetadataManager.Feature> gfList = meta.getFeatureList();
+			Set<String> ftStringList = new LinkedHashSet<>();
+			for(MetadataManager.Feature i: gfList) {
+				ftStringList.add(i.getAbbreviate().toUpperCase());
+				ftStringList.add(i.getFull().toUpperCase());
+			}
+			String wordListString = "\"" + Utils.join("\",\"", ftStringList) + "\"";
+			Statement statement = con.createStatement();
+			// select atomic nodes whose names are not in feature list.
+			ResultSet rs = statement.executeQuery(String.format(
+					"select key from tree where target_id in " +
+							"(select uid from atomic) and " +
+							"UPPER(key) not in (%s)", wordListString));
+			while(rs.next()) {
+				ret.add(rs.getString(1));
+			}
+			if(ret.isEmpty()) {
+				return null;
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	private static String randomString() {
 		char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 		StringBuilder sb = new StringBuilder();

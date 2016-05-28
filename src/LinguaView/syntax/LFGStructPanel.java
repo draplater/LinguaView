@@ -224,9 +224,53 @@ public class LFGStructPanel extends TreePanel<Element> {
 		return true;
 	}
 
+	/**
+	 * wrapper of AttributeValueMatrix.isFStructValid
+	 * @return
+     */
 	public List<AttributeValueMatrix.FStructCheckResult> isPredValid() {
 		AttributeValueMatrix headNode = fstruct.treebank.get(0);
 		return headNode.isFStructValid();
+	}
+
+	/**
+	 * wrapper pf AttributeValueMatrix.checkGovernable
+	 * @param meta
+	 * @return
+     */
+	public List<AttributeValueMatrix.FStructCheckResult> checkGovernable(MetadataManager meta) {
+		AttributeValueMatrix headNode = fstruct.treebank.get(0);
+		return headNode.checkGovernable(meta);
+	}
+
+	/**
+	 * wrapper of AttributeValueMatrix.checkCoherence
+	 * @param meta
+	 * @return
+     */
+	public List<String> checkCoherence(MetadataManager meta) {
+		AttributeValueMatrix headNode = fstruct.treebank.get(0);
+		return headNode.checkCoherence(meta);
+	}
+
+	/**
+	 * wrapper of AttributeValueMatrix.checkGramFuncName
+	 * @param meta
+	 * @return
+     */
+	public List<String> checkGramFuncName(MetadataManager meta) {
+		AttributeValueMatrix headNode = fstruct.treebank.get(0);
+		return headNode.checkGramFuncName(meta);
+	}
+
+	/**
+	 * wrapper of AttributeValueMatrix.checkFeatureName
+	 * @param meta
+	 * @return
+	 */
+	public List<String> checkFeatureName(MetadataManager meta) {
+		AttributeValueMatrix headNode = fstruct.treebank.get(0);
+		return headNode.checkFeatureName(meta);
 	}
 	
 	/**

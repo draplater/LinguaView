@@ -1876,7 +1876,7 @@ class TabbedPaneFrame extends JFrame {
 	private void checkLFGValid() {
 		List<AttributeValueMatrix.FStructCheckResult> lackList = LFGcomponent.isPredValid();
 		if(lackList != null) {
-			String tipString = "Imcomplete governable grammatical functions: ";
+			String tipString = "Imcomplete governed grammatical function(s): ";
 			// join with ", "
 			for(int j=0; j<lackList.size(); j++) {
 				AttributeValueMatrix.FStructCheckResult item = lackList.get(j);
@@ -1886,6 +1886,46 @@ class TabbedPaneFrame extends JFrame {
 				else
 					tipString += ".";
 			}
+			JOptionPane.showMessageDialog(this, tipString);
+		}
+
+		if(meta == null || meta.isEmpty()) {
+			return;
+		}
+
+		List<AttributeValueMatrix.FStructCheckResult> nonGovernable = LFGcomponent.checkGovernable(meta);
+		if(nonGovernable != null) {
+			String tipString = "Non-governable grammatical function(s) is governed: ";
+			// join with ", "
+			for(int j=0; j<nonGovernable.size(); j++) {
+				AttributeValueMatrix.FStructCheckResult item = nonGovernable.get(j);
+				tipString += String.format("%s of %s", item.reason, item.pred);
+				if(j != nonGovernable.size() - 1)
+					tipString += ", ";
+				else
+					tipString += ".";
+			}
+			JOptionPane.showMessageDialog(this, tipString);
+		}
+
+		List<String> nonCoherence = LFGcomponent.checkCoherence(meta);
+		if(nonCoherence != null) {
+			String tipString = "Redundant grammatical function(s): " +
+					Utils.join(", ", nonCoherence) + ".";
+			JOptionPane.showMessageDialog(this, tipString);
+		}
+
+		List<String> invalidGFName = LFGcomponent.checkGramFuncName(meta);
+		if(invalidGFName != null) {
+			String tipString = "Undefined grammatical function(s): " +
+					Utils.join(", ", invalidGFName) + ".";
+			JOptionPane.showMessageDialog(this, tipString);
+		}
+
+		List<String> invalidFTName = LFGcomponent.checkFeatureName(meta);
+		if(invalidFTName != null) {
+			String tipString = "Undefined feature(s): " +
+					Utils.join(", ", invalidFTName) + ".";
 			JOptionPane.showMessageDialog(this, tipString);
 		}
 	}

@@ -152,6 +152,7 @@ class TabbedPaneFrame extends JFrame {
 	JButton nextButton = new JButton();
 	JButton jumpButton = new JButton();
 	JButton saveTextButton = new JButton();
+	JButton reloadButton = new JButton();
 
 	/**
 	 * the status bar tells the user which sentence they are processing
@@ -511,6 +512,7 @@ class TabbedPaneFrame extends JFrame {
 		Icon newIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/new.png"));
 		Icon importIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/import.png"));
 		Icon exportIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/export.png"));
+		Icon reloadIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/refresh.png"));
 		Icon zoomInIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/zoomin.png"));
 		Icon zoomOutIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/zoomout.png"));
 		Icon prevIcon = new ImageIcon(TabbedPaneFrame.class.getResource("UIsrc/prev.png"));
@@ -521,6 +523,7 @@ class TabbedPaneFrame extends JFrame {
 		newButton.setIcon(newIcon);
 		importButton.setIcon(importIcon);
 		exportButton.setIcon(exportIcon);
+		reloadButton.setIcon(reloadIcon);
 		zoomInButton.setIcon(zoomInIcon);
 		zoomOutButton.setIcon(zoomOutIcon);
 		prevButton.setIcon(prevIcon);
@@ -531,6 +534,7 @@ class TabbedPaneFrame extends JFrame {
 		newButton.addActionListener(new ImportItemListener());
 		importButton.addActionListener(new ImportItemListener());
 		exportButton.addActionListener(new ExportItemListener());
+		reloadButton.addActionListener(new reloadListener());
 		zoomInButton.addActionListener(new ZoomInListener());
 		zoomOutButton.addActionListener(new ZoomOutListener());
 		prevButton.addActionListener(new PrevSentListener());
@@ -541,6 +545,7 @@ class TabbedPaneFrame extends JFrame {
 		bar.add(newButton);
 		bar.add(importButton);
 		bar.add(exportButton);
+		bar.add(reloadButton);
 		bar.add(zoomInButton);
 		bar.add(zoomOutButton);
 		bar.add(prevButton);
@@ -1482,6 +1487,25 @@ class TabbedPaneFrame extends JFrame {
 			exp.showDialog(TabbedPaneFrame.this, "Export");
 		}
 	}
+
+	/**
+	 * Reload the file.
+	 * @author chen yufei
+	 */
+	class reloadListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			if(filename == null) {
+				JOptionPane.showMessageDialog(TabbedPaneFrame.this,
+						"No file imported.");
+				return;
+			}
+			// Jump to the same sentence
+			int storedSentenceNumber = constcomponent.sentenceNumber + 1;
+			importFromFile(filename);
+			jumpSent(storedSentenceNumber);
+		}
+	}
 	
 	class CutItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -1953,4 +1977,5 @@ class TabbedPaneFrame extends JFrame {
 			}
 		}
 	}
+
 }

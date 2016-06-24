@@ -966,7 +966,7 @@ class TabbedPaneFrame extends JFrame {
 		
 		newSentenceNumber--;
 		if (newSentenceNumber <= constcomponent.lastIndex
-				&& newSentenceNumber > 0) {
+				&& newSentenceNumber >= 0) {
 			constcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				constcomponent.init();
@@ -978,7 +978,7 @@ class TabbedPaneFrame extends JFrame {
 		}
 
 		if (newSentenceNumber <= depcomponent.lastIndex
-				&& newSentenceNumber > 0) {
+				&& newSentenceNumber >= 0) {
 			depcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				depcomponent.init();
@@ -997,7 +997,7 @@ class TabbedPaneFrame extends JFrame {
 		}
 
 		if (newSentenceNumber <= deepdepcomponent.lastIndex
-				&& newSentenceNumber > 0) {
+				&& newSentenceNumber >= 0) {
 			deepdepcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				deepdepcomponent.init();
@@ -1016,7 +1016,7 @@ class TabbedPaneFrame extends JFrame {
 		}
 
 		if (newSentenceNumber <= CCGcomponent.lastIndex
-				&& newSentenceNumber > 0) {
+				&& newSentenceNumber >= 0) {
 			CCGcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				CCGcomponent.init();
@@ -1028,7 +1028,7 @@ class TabbedPaneFrame extends JFrame {
 		}
 
 		if (newSentenceNumber <= LFGcomponent.lastIndex
-				&& newSentenceNumber > 0) {
+				&& newSentenceNumber >= 0) {
 			LFGcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				LFGcomponent.init();

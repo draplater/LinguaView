@@ -72,24 +72,28 @@ public class ConstTree extends Tree<String> {
         }
 
         public static ConstTree ReadConstTree(String PennTree) {
-            PennTree = PennTree.replaceAll("[\n\t\\ ]+", " ");
+            PennTree = PennTree.replaceAll("[\n\t ]+", " "); // replace \n \t to space
             PennTree = PennTree.trim();
             ConstTree res;
-            if(!PennTree.matches("^\\( *\\)$") && !PennTree.equals("")) {
+            if(!PennTree.matches("^\\( *\\)$") && !PennTree.equals("")) { // not empty
                 if(PennTree.startsWith("( ")) {
-                    PennTree = PennTree.substring(PennTree.indexOf(40) + 1, PennTree.lastIndexOf(41)).trim();
-                } else {
-                    PennTree = PennTree.trim();
+                    // remove outside parenthesis
+                    // (ROOT(...)) -> ROOT(...)
+                    PennTree = PennTree.substring(PennTree.indexOf('(') + 1, PennTree.lastIndexOf(')')).trim();
                 }
 
-                String tag = PennTree.substring(PennTree.indexOf(40) + 1, PennTree.indexOf(32));
+                // extract tag like "np#2__!=^SUBJ"
+                String tag = PennTree.substring(PennTree.indexOf('(') + 1, PennTree.indexOf(' '));
+                // tags[0] = tag_name, tag[1:] = function expression
                 String[] tags = tag.split("__");
-                res = new ConstTree(tags[0], new String[0]);
+                res = new ConstTree(tags[0], new String[0]); // create ConstTree object with specific tag name
+                // has function expression(it's possible that not only one function expression is exist)
                 if(tags.length > 1) {
-                    String[] L = new String[tags.length - 1];
+                    String[] L = new String[tags.length - 1]; // expression list
 
                     for(int currentPos = 1; currentPos < tags.length; ++currentPos) {
-                        L[currentPos - 1] = tags[currentPos].replace('^', '↑').replace('!', '↓').replace('@', '∊');
+                        L[currentPos - 1] = tags[currentPos].replace('^', '↑').replace('!', '↓').replace('@', '∊')
+                                .replace("\\in", "∊");
                     }
 
                     res.setLa(L);
@@ -151,7 +155,8 @@ public class ConstTree extends Tree<String> {
                 String[] L = new String[tags.length - 1];
 
                 for(int temp = 1; temp < tags.length; ++temp) {
-                    L[temp - 1] = tags[temp].replace('^', '↑').replace('!', '↓').replace('@', '∊');
+                    L[temp - 1] = tags[temp].replace('^', '↑').replace('!', '↓').replace('@', '∊')
+                            .replace("\\in", "∊");
                 }
 
                 res.setLa(L);

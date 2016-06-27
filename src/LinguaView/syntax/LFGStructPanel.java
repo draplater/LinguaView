@@ -66,10 +66,6 @@ public class LFGStructPanel extends TreePanel<Element> {
 	public boolean isShown = true;
 	private List<String> commentList = new ArrayList<>();
 
-	{
-		if(Utils.isDebug)
-			commentList.add("LinguaView is in debug mode.");
-	}
 	/**
 	 * FeatureStructure is a wrapper class for using FeatureLayoutPanel in LFGStructPanel.
 	 * Except for overridden init() method and a new SetXStartPos() method for adjustment,
@@ -150,6 +146,9 @@ public class LFGStructPanel extends TreePanel<Element> {
 		fstruct.leftMargin = fLeftMarginOrig;
 		cstruct.topMargin = cTopMarginOrig;
 		fstruct.topMargin = fTopMarginOrig;
+		commentList.clear();
+		if(Utils.isDebug)
+			commentList.add("LinguaView is in debug mode.");
 		loadFont();
 		loadSentence();
 		setPreferredSize(area);

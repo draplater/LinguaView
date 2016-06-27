@@ -39,7 +39,37 @@ import LinguaView.UIutils.*;
  * @author shuoyang
  */
 public class LinguaView {
+	static String filename = null;
 	public static void main(String[] args) {
+		if(args.length >= 1) {
+			if(args[0].equals("export")) {
+				if(args.length < 3) {
+					System.out.println("Usage: LinguaView.jar export input.xml output.eps");
+					System.exit(2);
+				}
+
+				String filename = args[1];
+				TabbedPaneFrame frame = new TabbedPaneFrame();
+				if(filename != null){
+					frame.importFromFile(filename);
+				}
+				Dimension dim = frame.LFGcomponent.getDimension();
+				try {
+					EpsGraphics g = new EpsGraphics("Title",
+							new FileOutputStream(args[2]), 0, 0,
+							(int) dim.getWidth() + 2,
+							(int) dim.getHeight(), ColorMode.COLOR_RGB);
+					frame.LFGcomponent.paint(g);
+					g.flush();
+					g.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				System.exit(0);
+			} else if(args[0].equals("open")) {
+				filename = args[1];
+			}
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -62,7 +92,10 @@ public class LinguaView {
 					e.printStackTrace();
 				}
 
-				JFrame frame = new TabbedPaneFrame();
+				TabbedPaneFrame frame = new TabbedPaneFrame();
+				if(filename != null){
+					frame.importFromFile(filename);
+				}
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
 			}
@@ -1340,7 +1373,8 @@ class TabbedPaneFrame extends JFrame {
 					Success = false;
 					statusBar.setMessage("Invalid c-structure & f-structure correspondence detected.");
 				}
-				checkLFGValid();
+				if(isVisible())
+					checkLFGValid();
 			} catch (Exception e) {
 				e.printStackTrace();
 				Success = false;

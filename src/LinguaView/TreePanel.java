@@ -44,7 +44,7 @@ public abstract class TreePanel<T> extends JPanel {
     public int bottomMargin = 60;	
 	public int leftMargin = 20; 
 	public int rightMargin = 20;
-	public int wordSpace = 10;	
+	public int wordSpace = 10;
 	public int textTopMargin = 4;
 	public int smallfontHight, fontHight, doubleFontHight, tripleFontHight;
 	public double levelSize;

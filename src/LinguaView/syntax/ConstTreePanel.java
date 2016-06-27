@@ -43,7 +43,7 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 	String[] labelArray;
 
 	public boolean displayLA = true;
-	int laMargin = 0;
+	int laYMargin = 0; // vertical margin of la
 
 	/**
 	 * This is a group of layout information.
@@ -111,7 +111,7 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 	public void drawTree(Graphics2D g2, ConstTree n) {
 		int i = indexTable.get(n);
 		int thisY = this.YTopArray[i] + this.textTipMargin + this.fontHight;
-		g2.drawString((String)n.getLabel(), this.XMiddleArray[i] - this.metrics.stringWidth((String)n.getLabel()) / 2, thisY);
+		g2.drawString(n.getLabel(), this.XMiddleArray[i] - this.metrics.stringWidth(n.getLabel()) / 2, thisY);
 		int ci;
 		if(this.displayLA) {
 			String[] cx;
@@ -120,7 +120,7 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 			for(int var6 = 0; var6 < ci; ++var6) {
 				String c = cx[var6];
 				g2.setColor(Color.GRAY);
-				thisY += this.fontHight + this.laMargin;
+				thisY += this.fontHight + this.laYMargin;
 				g2.drawString(c, this.XMiddleArray[i] - this.metrics.stringWidth(c) / 2, thisY);
 				g2.setColor(Color.BLACK);
 			}
@@ -178,35 +178,28 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 		this.nodeLengthsArray = new int[this.nodesCount];
 		this.nodeHeightsArray = new int[this.nodesCount];
 		int i = 0;
-		ConstTree[] var6 = this.nodesArray;
-		int var5 = this.nodesArray.length;
 
 		int height;
-		for(height = 0; height < var5; ++height) {
-			ConstTree width = var6[height];
-			this.indexTable.put(width, Integer.valueOf(i));
-			++i;
+		for(height = 0; height < nodesArray.length; ++height, ++i) {
+			ConstTree width = nodesArray[height];
+			this.indexTable.put(width, i);
 		}
 
 		this.calculateNodeLengthsAndHeights(this.nodesArray);
-		int var7 = this.arrangeAllTerminals(this.nodesArray) - this.leftMargin;
+		int treeWidth = this.arrangeAllTerminals(this.nodesArray) - this.leftMargin;
 		this.updateValues(t, this.topMargin);
 		height = this.alignVertical(t);
-		this.area.width = var7 + this.leftMargin + this.rightMargin;
+		this.area.width = treeWidth + this.leftMargin + this.rightMargin;
 		this.area.height = height + this.bottomMargin;
     }
 
 	private void calculateNodeLengthsAndHeights(ConstTree[] nodesArray) {
 		for(int i = 0; i < nodesArray.length; ++i) {
 			ConstTree n = nodesArray[i];
-			int nodeLength = this.metrics.stringWidth((String)n.getLabel());
-			int k;
+			int nodeLength = this.metrics.stringWidth(n.getLabel());
 			if(this.displayLA) {
-				String[] var8;
-				int var7 = (var8 = n.getLa()).length;
-
-				for(k = 0; k < var7; ++k) {
-					String nodeHeight = var8[k];
+				for(int k = 0; k < n.getLa().length; ++k) {
+					String nodeHeight = n.getLa()[k];
 					if(nodeLength < this.metrics.stringWidth(nodeHeight)) {
 						nodeLength = this.metrics.stringWidth(nodeHeight);
 					}
@@ -214,27 +207,25 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 			}
 
 			this.nodeLengthsArray[i] = nodeLength;
-			int var9 = this.fontHight + this.textTipMargin * 2;
+			int nodeHeight = this.fontHight + this.textTipMargin * 2;
 			if(this.displayLA) {
-				for(k = 0; k < n.getLa().length; ++k) {
-					var9 += this.fontHight + this.laMargin;
+				for(int k = 0; k < n.getLa().length; ++k) {
+					nodeHeight += this.fontHight + this.laYMargin;
 				}
 			}
 
-			this.nodeHeightsArray[i] = var9;
+			this.nodeHeightsArray[i] = nodeHeight;
 		}
 
 	}
 
 	private int arrangeAllTerminals(ConstTree[] nodesArray) {
 		int thisXLeft = this.leftMargin;
-		ConstTree[] var6 = nodesArray;
-		int var5 = nodesArray.length;
 
-		for(int var4 = 0; var4 < var5; ++var4) {
-			ConstTree n = var6[var4];
+		for(int node = 0; node < nodesArray.length; ++node) {
+			ConstTree n = nodesArray[node];
 			if(n.isLeaf()) {
-				int i = ((Integer)this.indexTable.get(n)).intValue();
+				int i = this.indexTable.get(n);
 				int columnLength = this.getColumnLengthColumn(n);
 				this.XMiddleArray[i] = thisXLeft + columnLength / 2;
 				thisXLeft = thisXLeft + columnLength + this.wordSpace;
@@ -245,11 +236,11 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 	}
 
 	private int getColumnLengthColumn(ConstTree n) {
-		int nodeLength = this.nodeLengthsArray[((Integer)this.indexTable.get(n)).intValue()];
+		int nodeLength = this.nodeLengthsArray[indexTable.get(n)];
 
 		while(n.parent != null && n.parent.getConstChildren().size() == 1) {
 			n = n.parent;
-			int i = ((Integer)this.indexTable.get(n)).intValue();
+			int i = indexTable.get(n);
 			int length = this.nodeLengthsArray[i];
 			if(length > nodeLength) {
 				nodeLength = length;
@@ -261,9 +252,9 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 
 	/**
 	 * update the location of internal nodes ???
-	 * @param n
-	 * @param thisY
-     * @return
+	 * @param n corresponding const-tree
+	 * @param thisY starting from @param thisY position
+     * @return x start position
      */
 	private int updateValues(ConstTree n, int thisY) {
 		int i = indexTable.get(n);
@@ -273,17 +264,20 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 		} else {
 			int k = 0;
 			int nc = n.getChildren().size();
-			int[] cXLeft = new int[nc];
+			int[] cXLeft = new int[nc]; // x left list of children
 			List<ConstTree> cs = n.getConstChildren();
 
 			for(Iterator xSpan = cs.iterator(); xSpan.hasNext(); ++k) {
-				ConstTree iRightMost = (ConstTree)xSpan.next();
-				cXLeft[k] = this.updateValues(iRightMost, thisY +
+				ConstTree child = (ConstTree)xSpan.next();
+				cXLeft[k] = this.updateValues(child, thisY +
 						this.nodeHeightsArray[i] + (int)this.levelSize);
 			}
 
-			this.XMiddleArray[i] = cXLeft[0] + (cXLeft[nc - 1] - cXLeft[0] +
-					this.nodeLengthsArray[indexTable.get(cs.get(nc - 1))]) / 2;
+			int subnodeLength = cXLeft[nc - 1] +
+					this.nodeLengthsArray[indexTable.get(cs.get(nc - 1))] -
+					cXLeft[0];
+
+			XMiddleArray[i] = cXLeft[0] + subnodeLength / 2;
 			return this.XMiddleArray[i] - this.nodeLengthsArray[i] / 2;
 		}
 	}
@@ -308,20 +302,23 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 
 			int i1;
 			Tree var14;
-			Iterator var15;
-			for(var15 = nl.iterator(); var15.hasNext(); this.YTopArray[i1] = var13) {
-				var14 = (Tree)var15.next();
-				i1 = ((Integer)this.indexTable.get(var14)).intValue();
+			Iterator i;
+			for(i = nl.iterator(); i.hasNext();) {
+				var14 = (Tree)i.next();
+				i1 = this.indexTable.get(var14);
+				// align Y-top of the same depth at vertical.
+				this.YTopArray[i1] = var13;
 			}
 
 			k = 0;
 
-			for(var15 = nl.iterator(); var15.hasNext(); ++k) {
-				var14 = (Tree)var15.next();
+			for(i = nl.iterator(); i.hasNext(); ++k) {
+				var14 = (Tree)i.next();
 				i1 = ((Integer)this.indexTable.get(var14)).intValue();
 				LevelYDownArray[k] = this.YTopArray[i1] + this.nodeHeightsArray[i1] + (int)this.levelSize;
 			}
 
+			// calculate Y-down(including levelSize) of this depth.
 			lastYDown = this.getMaximal(LevelYDownArray);
 		}
 

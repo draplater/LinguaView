@@ -70,11 +70,21 @@ public class MetadataManager {
 
     public MetadataManager(String filename, String encoding)
             throws FileNotFoundException, UnsupportedEncodingException, XPathExpressionException {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource source = new InputSource(new BufferedReader(
+        this(new BufferedReader(
                 new InputStreamReader(
                         new FileInputStream(filename),
                         encoding)));
+    }
+
+    public MetadataManager(String input)
+            throws UnsupportedEncodingException, XPathExpressionException {
+        this(new StringReader(input));
+    }
+
+    public MetadataManager(Reader input)
+            throws UnsupportedEncodingException, XPathExpressionException {
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource source = new InputSource(input);
         NodeList nodes = (NodeList) xpath.evaluate("/viewer/meta/*", source,
                 XPathConstants.NODESET);
         for(int i = 0; i<nodes.getLength(); i++) {

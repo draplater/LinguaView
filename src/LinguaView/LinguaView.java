@@ -19,6 +19,8 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import net.sf.epsgraphics.ColorMode;
 import net.sf.epsgraphics.EpsGraphics;
@@ -32,6 +34,8 @@ import org.xml.sax.InputSource;
 
 import LinguaView.syntax.*;
 import LinguaView.UIutils.*;
+import org.xml.sax.SAXException;
+
 /**
  * LinguaView is the top-most class in the whole class hierarchy
  * It constructs the top UI object and starts the whole program.
@@ -68,6 +72,27 @@ public class LinguaView {
 				System.exit(0);
 			} else if(args[0].equals("open")) {
 				filename = args[1];
+			} else if(args[0].equals("io")) {
+				// Read LFG default config from default config file
+				try (Scanner scanner = new Scanner(System.in)) {
+					// Read all content from file.
+					String input = scanner.useDelimiter("\\A").next();
+					TabbedPaneFrame frame = new TabbedPaneFrame();
+					frame.importFromString(input);
+					try {
+						Dimension dim = frame.LFGcomponent.getDimension();
+						EpsGraphics g = new EpsGraphics("Title",
+								System.out, 0, 0,
+								(int) dim.getWidth() + 2,
+								(int) dim.getHeight(), ColorMode.COLOR_RGB);
+						frame.LFGcomponent.paint(g);
+						g.flush();
+						g.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					System.exit(0);
+				}
 			}
 		}
 		EventQueue.invokeLater(new Runnable() {
@@ -1452,7 +1477,7 @@ class TabbedPaneFrame extends JFrame {
 				));
 
 				meta = new MetadataManager(filename, encoding);
-				if(meta.isEmpty())
+				if(meta.isEmpty() && isVisible())
 					JOptionPane.showMessageDialog(this, "No metadata found.");
 
 				importView(doc);
@@ -1463,23 +1488,22 @@ class TabbedPaneFrame extends JFrame {
 		}
 		this.filename = filename;
 	}
-	
+
 	/**
 	 * This function does not import text into editor
 	 * It is only called to set up the default view when the program starts
-	 * 
-	 * @param ViewStr
+	 *
+	 * @param input input strng
 	 */
-	public void importFromString(String ViewStr) {
+	public void importFromString(String input) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory
+				.newInstance();
 		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory
-					.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			InputStream stream = new ByteArrayInputStream(
-					ViewStr.getBytes("UTF-8"));
-			Document doc = builder.parse(stream);
+			Document doc = builder.parse(
+					new InputSource(new ByteArrayInputStream(input.getBytes("utf-8"))));
 			importView(doc);
-
+			meta = new MetadataManager(input);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

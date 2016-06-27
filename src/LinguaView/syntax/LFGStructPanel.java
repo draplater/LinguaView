@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.util.*;
 
+import LinguaView.UIutils.Utils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -48,6 +49,10 @@ public class LFGStructPanel extends TreePanel<Element> {
 	int cTopMarginOrig = cstruct.topMargin;
 	int fTopMarginOrig = fstruct.topMargin;
 	/**
+	 * the bottom margin of comment box.
+	 */
+	static final int commentMargin = 5;
+	/**
 	 * a mapping from TSNodeLabel to the index of AVM, represents the correspondences
 	 */
 	Map<ConstTree, Integer> CorrespondenceTable = new HashMap<ConstTree, Integer>();
@@ -59,7 +64,12 @@ public class LFGStructPanel extends TreePanel<Element> {
 	 * indicates whether the correspondence lines should be shown
 	 */
 	public boolean isShown = true;
+	private List<String> commentList = new ArrayList<>();
 
+	{
+		if(Utils.isDebug)
+			commentList.add("LinguaView is in debug mode.");
+	}
 	/**
 	 * FeatureStructure is a wrapper class for using FeatureLayoutPanel in LFGStructPanel.
 	 * Except for overridden init() method and a new SetXStartPos() method for adjustment,
@@ -207,6 +217,23 @@ public class LFGStructPanel extends TreePanel<Element> {
 			}
 			g2.setColor(Color.BLACK);
 		}
+
+		if(! commentList.isEmpty()) {
+			// Y position of comment box.
+			int yPos = fstruct.getDimension().height;
+			if (cstruct.getDimension().height > yPos)
+				yPos = cstruct.getDimension().height;
+
+			// draw comment box
+			g2.drawRect(cstruct.leftMargin, yPos,
+					area.width, fontHight * commentList.size() +commentMargin);
+			yPos += fontHight; // String is drawn in the baseline.
+
+			for (String comment : commentList) {
+				g2.drawString(" * " + comment, cstruct.leftMargin, yPos);
+				yPos += fontHight;
+			}
+		}
 	}
 
 	public boolean isAllRefValid() {
@@ -331,13 +358,24 @@ public class LFGStructPanel extends TreePanel<Element> {
 		
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
-			if ((child instanceof Element)
-					&& (child.getNodeName() == "cstruct")) {
-				cstructNode = (Element) child;
+			if(! (child instanceof Element)) {
+				continue;
 			}
-			else if ((child instanceof Element)
-					&& (child.getNodeName() == "fstruct")) {
+			if (child.getNodeName().equals("cstruct")) {
+				cstructNode = (Element) child;
+			} else if (child.getNodeName().equals("fstruct")) {
 				fstructNode = (Element) child;
+			} else if (child.getNodeName().equals("comment")) {
+				// add comments
+				NodeList commentItems = child.getChildNodes();
+				for(int j=0; j < commentItems.getLength(); j++) {
+					Node item = commentItems.item(j);
+					if(! (item instanceof Element) ||
+							! item.getNodeName().equals("item")) {
+						continue;
+					}
+					commentList.add(item.getTextContent().trim());
+				}
 			}
 		}
 		
@@ -380,7 +418,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 
 		// set the layout size
 		Dimension fArea = fstruct.getDimension();
-		area.height = cArea.height > fArea.height ? cArea.height : fArea.height;
+		area.height = (cArea.height > fArea.height ? cArea.height : fArea.height) +
+				( commentList.size() + 1) * fontHight;
 		area.width = cArea.width > fArea.width ? cArea.width : fArea.width;
 	}
 

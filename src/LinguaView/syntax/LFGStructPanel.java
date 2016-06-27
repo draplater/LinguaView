@@ -225,6 +225,38 @@ public class LFGStructPanel extends TreePanel<Element> {
 		}
 
 		if(showComment && !commentList.isEmpty()) {
+			// split long comment into lines
+			List<String> commentLines = new ArrayList<>();
+			StringBuilder buf = new StringBuilder();
+			for(String comment : commentList) {
+				buf.append(" * ");
+				int currentWidth = metrics.stringWidth(" * ");
+				for(int i=0; i<comment.length(); i++) {
+					if(comment.charAt(i) == '\n') {
+						// create new line
+						commentLines.add(buf.toString());
+						buf.setLength(0);
+						buf.append("   ");
+						currentWidth = metrics.stringWidth("   ");
+						continue;
+					}
+
+					int charWidth = metrics.charWidth(comment.charAt(i));
+					if(currentWidth + charWidth > area.width) {
+						commentLines.add(buf.toString());
+						buf.setLength(0);
+						buf.append("   ");
+						buf.append(comment.charAt(i));
+						currentWidth = metrics.stringWidth("   ");
+					}
+					buf.append(comment.charAt(i));
+					currentWidth += charWidth;
+				}
+				commentLines.add(buf.toString());
+				buf.setLength(0);
+				currentWidth = 0;
+			}
+
 			// Y position of comment box.
 			int yPos = fstruct.getDimension().height;
 			if (cstruct.getDimension().height > yPos)
@@ -232,11 +264,12 @@ public class LFGStructPanel extends TreePanel<Element> {
 
 			// draw comment box
 			g2.drawRect(cstruct.leftMargin, yPos,
-					area.width, fontHight * commentList.size() +commentMargin);
+					area.width + metrics.stringWidth("    "),
+					fontHight * commentLines.size() +commentMargin);
 			yPos += fontHight; // String is drawn in the baseline.
 
-			for (String comment : commentList) {
-				g2.drawString(" * " + comment, cstruct.leftMargin, yPos);
+			for (String line : commentLines) {
+				g2.drawString(line, cstruct.leftMargin, yPos);
 				yPos += fontHight;
 			}
 		}

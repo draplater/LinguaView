@@ -197,7 +197,7 @@ class TabbedPaneFrame extends JFrame {
 
 	public TabbedPaneFrame() {
 		// deal with the panel: size, font, layout, etc.
-		setTitle("LinguaView 1.2.3");
+		setTitle("LinguaView 1.3.0");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
 		int screenHeight = screenSize.height;

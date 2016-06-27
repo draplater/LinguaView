@@ -64,6 +64,11 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 	private int[] nodeHeightsArray;
 	protected int[] nodeLengthsArray;
 
+	/**
+	 * the shift of width after arrangeAllTerminals
+	 */
+	private int totalWidthShift;
+
 	public ConstTreePanel() {
 		
 	}
@@ -170,6 +175,7 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
     	}
     	// initialization
 		levelSize = 15.0D;
+		totalWidthShift = 0;
 		indexTable = new IdentityHashMap<ConstTree, Integer>();
 		this.nodesCount = t.constSubTreeList().size();
 		this.nodesArray = (ConstTree[])t.constSubTreeList().toArray(new ConstTree[0]);
@@ -189,7 +195,7 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 		int treeWidth = this.arrangeAllTerminals(this.nodesArray) - this.leftMargin;
 		this.updateValues(t, this.topMargin);
 		height = this.alignVertical(t);
-		this.area.width = treeWidth + this.leftMargin + this.rightMargin;
+		this.area.width = treeWidth + this.leftMargin + this.rightMargin + totalWidthShift;
 		this.area.height = height + this.bottomMargin;
     }
 
@@ -273,11 +279,37 @@ public class ConstTreePanel extends TreePanel<ConstTree> {
 						this.nodeHeightsArray[i] + (int)this.levelSize);
 			}
 
+			int nodeLength = this.metrics.stringWidth(n.getLabel());
+			if(this.displayLA) {
+				for (int m = 0; m < n.getLa().length; ++m) {
+					String nodeHeight = n.getLa()[m];
+					if (nodeLength < this.metrics.stringWidth(nodeHeight)) {
+						nodeLength = this.metrics.stringWidth(nodeHeight);
+					}
+				}
+			}
+
 			int subnodeLength = cXLeft[nc - 1] +
 					this.nodeLengthsArray[indexTable.get(cs.get(nc - 1))] -
 					cXLeft[0];
 
 			XMiddleArray[i] = cXLeft[0] + subnodeLength / 2;
+
+
+			if(nc > 1 && nodeLength > subnodeLength) {
+				int widthShift = nodeLength - subnodeLength;
+				for(int p=indexTable.get(cs.get(0)); p < nodesArray.length; p++) {
+					// assert: node p is in the right of node i.
+					// In fact, we only need to shift the subnodes of i and all succeed leaves.
+					// The modification of succeed internal nodes is not needed.
+					// Even if we modify it, I won't have any effect because it will be overridden.
+					XMiddleArray[p] += widthShift;
+				}
+				XMiddleArray[i] += widthShift;
+				totalWidthShift += widthShift;
+			}
+
+
 			return this.XMiddleArray[i] - this.nodeLengthsArray[i] / 2;
 		}
 	}

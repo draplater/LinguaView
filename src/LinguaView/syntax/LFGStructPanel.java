@@ -64,6 +64,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 	 * indicates whether the correspondence lines should be shown
 	 */
 	public boolean isShown = true;
+
+	boolean showComment = true;
 	private List<String> commentList = new ArrayList<>();
 
 	/**
@@ -157,6 +159,11 @@ public class LFGStructPanel extends TreePanel<Element> {
 		repaint();
 	}
 
+	public void toggleComment() {
+		showComment = !showComment;
+		repaint();
+	}
+
 	/**
 	 * render the LFG structure according to the layout arranged
 	 */
@@ -217,7 +224,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 			g2.setColor(Color.BLACK);
 		}
 
-		if(! commentList.isEmpty()) {
+		if(showComment && !commentList.isEmpty()) {
 			// Y position of comment box.
 			int yPos = fstruct.getDimension().height;
 			if (cstruct.getDimension().height > yPos)

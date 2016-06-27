@@ -327,6 +327,8 @@ class TabbedPaneFrame extends JFrame {
 		LayoutMenu.add(colorItem);
 		JMenuItem showItem = new JMenuItem("Show/Hide LFG Correspondence Lines");
 		LayoutMenu.add(showItem);
+		JMenuItem commentItem = new JMenuItem("Show/Hide Comments");
+		LayoutMenu.add(commentItem);
 		menuBar.add(LayoutMenu);
 
 		// the help menu provides link to the online introduction to input format and access to the author
@@ -474,6 +476,12 @@ class TabbedPaneFrame extends JFrame {
 		skewItem.addActionListener(new SkewLineListener());
 		colorItem.addActionListener(new ColorLineListener());
 		showItem.addActionListener(new ShowLineListener());
+		commentItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				LFGcomponent.toggleComment();
+			}
+		});
 		zoomInItem.setAccelerator(KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_EQUALS,
 				java.awt.event.KeyEvent.CTRL_MASK));

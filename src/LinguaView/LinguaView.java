@@ -1453,6 +1453,7 @@ class TabbedPaneFrame extends JFrame {
 			e.printStackTrace();
 			statusBar.setMessage("Please check for problems in XML format.");
 		}
+		this.filename = filename;
 	}
 	
 	/**

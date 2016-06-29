@@ -283,35 +283,43 @@ public class LFGStructPanel extends TreePanel<Element> {
 		}
 	}
 
+	/**
+	 * split comment into lines for multiline display.
+	 * @param commentList A List of comments
+	 * @param lineWidth line width of comments block
+     * @return a list of comment lines
+     */
 	private List<String> splitComment(List<String> commentList,
 									  int lineWidth) {
 		List<String> commentLines = new ArrayList<>();
-		int prefixPadding = metrics.stringWidth(" * ");
+		int prefixPadding = metrics.stringWidth(" • ");
 		StringBuilder buf = new StringBuilder();
 		for(String comment : commentList) {
-            buf.append(" * ");
+            buf.append(" • "); // prefix of the first line
             int currentWidth = prefixPadding;
             for(int i=0; i<comment.length(); i++) {
                 if(comment.charAt(i) == '\n') {
                     // create new line
                     commentLines.add(buf.toString());
                     buf.setLength(0);
-                    buf.append("   ");
+                    buf.append("   "); // padding of the other line
                     currentWidth = prefixPadding;
                     continue;
                 }
 
                 int charWidth = metrics.charWidth(comment.charAt(i));
                 if(currentWidth + charWidth > lineWidth) {
+					// create new line
                     commentLines.add(buf.toString());
                     buf.setLength(0);
                     buf.append("   ");
-                    buf.append(comment.charAt(i));
                     currentWidth = prefixPadding;
                 }
+				// add char to this line
                 buf.append(comment.charAt(i));
                 currentWidth += charWidth;
             }
+			// add the rest of the line
             commentLines.add(buf.toString());
             buf.setLength(0);
         }

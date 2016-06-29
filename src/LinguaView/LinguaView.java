@@ -1478,7 +1478,7 @@ class TabbedPaneFrame extends JFrame {
 
 				meta = new MetadataManager(filename, encoding);
 				if(meta.isEmpty() && isVisible())
-					JOptionPane.showMessageDialog(this, "No metadata found.");
+					statusBar.setMessage("No metadata found.");
 
 				importView(doc);
 			}

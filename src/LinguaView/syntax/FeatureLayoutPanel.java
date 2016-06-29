@@ -73,7 +73,6 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	Map<Attribute, Dimension> positionMap = new IdentityHashMap<>();
 
 	public void init() {
-		positionMap.clear();
 		loadFont();
 		loadSentence();
         setPreferredSize(area);
@@ -93,6 +92,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 * layout the f-structure according to the layout arranged
 	 */
 	public void render(Graphics2D g2) {
+		positionMap.clear();
 		g2.setFont(font);
 		g2.setColor(Color.BLACK);
 		g2.setStroke(new BasicStroke());

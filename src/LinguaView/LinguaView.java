@@ -220,6 +220,11 @@ class TabbedPaneFrame extends JFrame {
 	private MetadataManager meta;
 	private String encoding;
 
+	/**
+	 * A flag indicate whether we should check LFG.
+	 */
+	private boolean checkLFG = true;
+
 	public TabbedPaneFrame() {
 		// deal with the panel: size, font, layout, etc.
 		setTitle("LinguaView 1.3.0");
@@ -354,6 +359,8 @@ class TabbedPaneFrame extends JFrame {
 		LayoutMenu.add(showItem);
 		JMenuItem commentItem = new JMenuItem("Show/Hide Comments");
 		LayoutMenu.add(commentItem);
+		JMenuItem lfgCheckerItem = new JMenuItem("Enable/Disable LFG Checker");
+		LayoutMenu.add(lfgCheckerItem);
 		menuBar.add(LayoutMenu);
 
 		// the help menu provides link to the online introduction to input format and access to the author
@@ -505,6 +512,18 @@ class TabbedPaneFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				LFGcomponent.toggleComment();
+			}
+		});
+
+		lfgCheckerItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent actionEvent) {
+				checkLFG = !checkLFG;
+				if(checkLFG) {
+					statusBar.setMessage("LFG Checker is enabled.");
+				} else {
+					statusBar.setMessage("LFG Checker is disabled.");
+				}
 			}
 		});
 		zoomInItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -719,7 +738,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGStructbank.add(defaultLFGStructbank);
 			LFGcomponent.loadTreebank(LFGStructbank);
 			LFGcomponent.init();
-			checkLFGValid();
+			if(checkLFG) checkLFGValid();
 			LFGcomponent.setBackground(Color.WHITE);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -903,7 +922,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber--;
 			try {
 				LFGcomponent.init();
-				checkLFGValid();
+				if(checkLFG) checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -1002,7 +1021,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber++;
 			try {
 				LFGcomponent.init();
-				checkLFGValid();
+				if(checkLFG) checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -1098,7 +1117,7 @@ class TabbedPaneFrame extends JFrame {
 			LFGcomponent.sentenceNumber = newSentenceNumber;
 			try {
 				LFGcomponent.init();
-				checkLFGValid();
+				if(checkLFG) checkLFGValid();
 			}
 			catch(Exception e) {
 				e.printStackTrace();
@@ -1407,7 +1426,7 @@ class TabbedPaneFrame extends JFrame {
 					statusBar.setMessage("Invalid c-structure & f-structure correspondence detected.");
 				}
 				if(isVisible())
-					checkLFGValid();
+					if(checkLFG) checkLFGValid();
 			} catch (Exception e) {
 				e.printStackTrace();
 				Success = false;

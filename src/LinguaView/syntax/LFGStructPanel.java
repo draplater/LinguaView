@@ -66,7 +66,11 @@ public class LFGStructPanel extends TreePanel<Element> {
 	public boolean isShown = true;
 
 	boolean showComment = true;
-	private List<String> commentList = new ArrayList<>();
+	private List<String> commentLines;
+	private int commentWidth;
+
+	private String[] edsLines;
+	private int edsWidth;
 
 	/**
 	 * FeatureStructure is a wrapper class for using FeatureLayoutPanel in LFGStructPanel.
@@ -148,9 +152,9 @@ public class LFGStructPanel extends TreePanel<Element> {
 		fstruct.leftMargin = fLeftMarginOrig;
 		cstruct.topMargin = cTopMarginOrig;
 		fstruct.topMargin = fTopMarginOrig;
-		commentList.clear();
-		if(Utils.isDebug)
-			commentList.add("LinguaView is in debug mode.");
+		if(commentLines != null)
+			commentLines.clear();
+		edsLines = null;
 		loadFont();
 		loadSentence();
 		setPreferredSize(area);
@@ -224,39 +228,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 			g2.setColor(Color.BLACK);
 		}
 
-		if(showComment && !commentList.isEmpty()) {
-			// split long comment into lines
-			List<String> commentLines = new ArrayList<>();
-			StringBuilder buf = new StringBuilder();
-			for(String comment : commentList) {
-				buf.append(" * ");
-				int currentWidth = metrics.stringWidth(" * ");
-				for(int i=0; i<comment.length(); i++) {
-					if(comment.charAt(i) == '\n') {
-						// create new line
-						commentLines.add(buf.toString());
-						buf.setLength(0);
-						buf.append("   ");
-						currentWidth = metrics.stringWidth("   ");
-						continue;
-					}
-
-					int charWidth = metrics.charWidth(comment.charAt(i));
-					if(currentWidth + charWidth > area.width) {
-						commentLines.add(buf.toString());
-						buf.setLength(0);
-						buf.append("   ");
-						buf.append(comment.charAt(i));
-						currentWidth = metrics.stringWidth("   ");
-					}
-					buf.append(comment.charAt(i));
-					currentWidth += charWidth;
-				}
-				commentLines.add(buf.toString());
-				buf.setLength(0);
-				currentWidth = 0;
-			}
-
+		if(showComment && commentLines != null &&
+				!commentLines.isEmpty()) {
 			// Y position of comment box.
 			int yPos = fstruct.getDimension().height;
 			if (cstruct.getDimension().height > yPos)
@@ -264,8 +237,8 @@ public class LFGStructPanel extends TreePanel<Element> {
 
 			// draw comment box
 			g2.drawRect(cstruct.leftMargin, yPos,
-					area.width + metrics.stringWidth("    "),
-					fontHight * commentLines.size() +commentMargin);
+					commentWidth,
+					fontHight * commentLines.size() + commentMargin);
 			yPos += fontHight; // String is drawn in the baseline.
 
 			for (String line : commentLines) {
@@ -273,6 +246,52 @@ public class LFGStructPanel extends TreePanel<Element> {
 				yPos += fontHight;
 			}
 		}
+
+		// X position of
+		if(edsLines != null) {
+			int xPos = fstruct.getDimension().width;
+			int edsSpan = fontHight * edsLines.length;
+			int yPos = cYMiddle - edsSpan / 2;
+			for (String line : edsLines) {
+				g2.drawString(line, xPos, yPos);
+				yPos += fontHight;
+			}
+		}
+	}
+
+	private List<String> splitComment(List<String> commentList,
+									  int lineWidth) {
+		List<String> commentLines = new ArrayList<>();
+		int prefixPadding = metrics.stringWidth(" * ");
+		StringBuilder buf = new StringBuilder();
+		for(String comment : commentList) {
+            buf.append(" * ");
+            int currentWidth = prefixPadding;
+            for(int i=0; i<comment.length(); i++) {
+                if(comment.charAt(i) == '\n') {
+                    // create new line
+                    commentLines.add(buf.toString());
+                    buf.setLength(0);
+                    buf.append("   ");
+                    currentWidth = prefixPadding;
+                    continue;
+                }
+
+                int charWidth = metrics.charWidth(comment.charAt(i));
+                if(currentWidth + charWidth > lineWidth) {
+                    commentLines.add(buf.toString());
+                    buf.setLength(0);
+                    buf.append("   ");
+                    buf.append(comment.charAt(i));
+                    currentWidth = prefixPadding;
+                }
+                buf.append(comment.charAt(i));
+                currentWidth += charWidth;
+            }
+            commentLines.add(buf.toString());
+            buf.setLength(0);
+        }
+		return commentLines;
 	}
 
 	public boolean isAllRefValid() {
@@ -394,7 +413,11 @@ public class LFGStructPanel extends TreePanel<Element> {
 		NodeList children = headNode.getChildNodes();
 		String constStr = new String();
 		Element cstructNode = null, fstructNode = null;
-		
+
+		List<String> commentList = new ArrayList<>();
+		if(Utils.isDebug)
+			commentList.add("LinguaView is in debug mode.");
+
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
 			if(! (child instanceof Element)) {
@@ -404,16 +427,25 @@ public class LFGStructPanel extends TreePanel<Element> {
 				cstructNode = (Element) child;
 			} else if (child.getNodeName().equals("fstruct")) {
 				fstructNode = (Element) child;
+			} else if (child.getNodeName().equals("eds")) {
+				// load EDS
+				String edsString = child.getTextContent().trim();
+				edsLines = edsString.split("\n");
+				edsWidth = 0;
+				for(String line : edsLines) {
+					int lineWidth = metrics.stringWidth(line);
+					if(lineWidth > edsWidth)
+						edsWidth = lineWidth;
+				}
 			} else if (child.getNodeName().equals("comment")) {
 				// add comments
 				NodeList commentItems = child.getChildNodes();
 				for(int j=0; j < commentItems.getLength(); j++) {
 					Node item = commentItems.item(j);
-					if(! (item instanceof Element) ||
-							! item.getNodeName().equals("item")) {
-						continue;
+					if( (item instanceof Element) &&
+							item.getNodeName().equals("item")) {
+						commentList.add(item.getTextContent().trim());
 					}
-					commentList.add(item.getTextContent().trim());
 				}
 			}
 		}
@@ -457,9 +489,14 @@ public class LFGStructPanel extends TreePanel<Element> {
 
 		// set the layout size
 		Dimension fArea = fstruct.getDimension();
+		commentWidth = cArea.width > fArea.width ? cArea.width : fArea.width - fLeftMarginOrig;
+		area.width = cArea.width > fArea.width ? cArea.width : fArea.width
+				+ edsWidth + leftMargin;
+		commentLines = splitComment(commentList,
+				commentWidth - metrics.charWidth(' '));
+		// split long comment into lines
 		area.height = (cArea.height > fArea.height ? cArea.height : fArea.height) +
-				( commentList.size() + 1) * fontHight;
-		area.width = cArea.width > fArea.width ? cArea.width : fArea.width;
+				( commentLines.size() + 1) * fontHight;
 	}
 
 	/**

@@ -112,6 +112,15 @@ public class AttributeValueMatrix extends Value implements
 	}
 
 	/**
+	 * Get the all attribute
+	 *
+	 * @return
+	 */
+	public Set<Attribute> getAllAttributes() {
+		return Pairs.keySet();
+	}
+
+	/**
 	 * Get the value of all attributes
 	 * 
 	 * @return
@@ -246,11 +255,18 @@ public class AttributeValueMatrix extends Value implements
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
 			if (child instanceof Element) {
+				// assert: child.tag is "attr"
 				childExists = true;
 				String attrName = ((Element) child).getAttribute("name");
 				String attrValType = ((Element) child)
 						.getAttribute("valtype");
+				String attrEDSLink = ((Element) child)
+						.getAttribute("eds_link");
 				Attribute Attr = new Attribute(attrName);
+				if (attrEDSLink != null &&
+						!attrEDSLink.trim().isEmpty()) {
+					Attr.setEdsLinks(attrEDSLink.split(","));
+				}
 				if (attrValType.trim().equals("fstruct")) {
 					AttributeValueMatrix val = null;
 					NodeList grandChildren = ((Element) child)

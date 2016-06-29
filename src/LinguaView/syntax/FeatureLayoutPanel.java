@@ -70,8 +70,10 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 * RefList stores all the referenced AVMs
 	 */
 	ArrayList<AttributeValueMatrix> RefList = new ArrayList<AttributeValueMatrix>();
+	Map<Attribute, Dimension> positionMap = new IdentityHashMap<>();
 
 	public void init() {
+		positionMap.clear();
 		loadFont();
 		loadSentence();
         setPreferredSize(area);
@@ -113,7 +115,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 			}
 			else {
 				AttributeValueMatrix avm = nodesArray[i];
-				Set<String> Keys = avm.getAllAttributeNames();
+				Set<Attribute> attrs = avm.getAllAttributes();
 				// render square brackets
 				if (!containedInRefList(avm)) {
 					drawLeftSquareBracket(XLeftArray[i], YUpArray[i],
@@ -122,7 +124,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 							YDownArray[i], g2);
 				}
 				// render attributes
-				for (String Key : Keys) {
+				for (Attribute attr : attrs) {
+					String Key = attr.getName();
 					Value Val = avm.getAttributeValue(Key);
 					int YPos = YFeatureTable.get(Val);
 					// atomic attribute values
@@ -131,6 +134,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(((Atomic) Val).getValue(),
 								XBoarderLineArray[i], YPos);
+						positionMap.put(attr,
+								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// semantic forms
 					else if (Val instanceof SemanticForm) {
@@ -166,6 +171,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 								);
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(sfStr, XBoarderLineArray[i], YPos);
+						positionMap.put(attr,
+								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// AVMs
 					else if (Val instanceof AttributeValueMatrix) {
@@ -176,6 +183,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 						int j = indexTable.get((AttributeValueMatrix) Val);
 						YPos = (YUpArray[j] + YDownArray[j]) / 2;
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
+						positionMap.put(attr,
+								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// set of AVMs
 					else if (Val instanceof SetOfAttributeValueMatrix) {
@@ -200,6 +209,10 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 								(int)(YDownPos - levelSize), g2);
 						drawRightCurlyBracket(XRightPos + CurlyBracketMargin,
 								YPos, (int)(YDownPos - levelSize), g2);
+						positionMap.put(attr,
+								new Dimension(XLeftArray[i] + XLeftMargin,
+										(YPos + YDownPos) / 2));
+
 					}
 				}
 			}

@@ -10,12 +10,11 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import LinguaView.UIutils.Utils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 import LinguaView.TreePanel;
 /**
@@ -63,7 +62,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 	/**
 	 * indicates whether the correspondence lines should be shown
 	 */
-	public boolean isShown = true;
+	public boolean showCorrespondingLine = true;
 
 	boolean showComment = true;
 	private List<String> commentLines;
@@ -198,36 +197,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 		cstruct.render(g2);
 		fstruct.render(g2);
 
-		// if the correspondences should be shown and are all valid,
-		// draw the correspondence lines
-		if (isShown && isAllRefValid()) {
-			int RefLineFringe = cstruct.getDimension().height;
-			int RefLineCount = 1;
-			
-			if(isColor) {
-				g2.setColor(Color.MAGENTA);
-			}
-			
-			for (int i = 0; i < cstruct.nodesCount; i++) {
-				if (CorrespondenceTable.get(cstruct.nodesArray[i]) != null) {
-					int fID = CorrespondenceTable.get(cstruct.nodesArray[i]);
-					AttributeValueMatrix headNode = fstruct.treebank.get(0);
-					AttributeValueMatrix targNode = headNode
-							.getSpecifiedNode(fID);
-					AttributeValueMatrix realTargNode = AttributeValueMatrix
-							.getRealContent(targNode);
-					int j = fstruct.indexTable.get(realTargNode);
-					int Xs = this.cstruct.XMiddleArray[i] + this.cstruct.nodeLengthsArray[i] / 2 + 5;
-					int Ys = this.cstruct.YTopArray[i] + this.fontHight / 2;
-					int Xe = fstruct.XLeftArray[j];
-					int Ye = (fstruct.YUpArray[j] + fstruct.YDownArray[j]) / 2;
-					drawRefLine(Xs, Ys, Xe, Ye, g2);
-					RefLineCount++;
-				}
-			}
-			g2.setColor(Color.BLACK);
-		}
-
+		// Draw comments
 		if(showComment && commentLines != null &&
 				!commentLines.isEmpty()) {
 			// Y position of comment box.
@@ -247,14 +217,68 @@ public class LFGStructPanel extends TreePanel<Element> {
 			}
 		}
 
-		// X position of
+		// draw eds
+		Map<String, Dimension> edsPositionMap = new HashMap<>();
 		if(edsLines != null) {
 			int xPos = fstruct.getDimension().width;
 			int edsSpan = fontHight * edsLines.length;
 			int yPos = cYMiddle - edsSpan / 2;
+			// extract eps tags.
 			for (String line : edsLines) {
+				Pattern p = Pattern.compile("\\b(\\w+):");
+				Matcher m = p.matcher(line);
+				if(m.find()) {
+					String tag = m.group(1);
+					edsPositionMap.put(tag, new Dimension(xPos, yPos));
+				}
 				g2.drawString(line, xPos, yPos);
 				yPos += fontHight;
+			}
+		}
+
+		// if the correspondences should be shown and are all valid,
+		// draw the correspondence lines
+		if (showCorrespondingLine) {
+			if(isAllRefValid()) {
+				int RefLineFringe = cstruct.getDimension().height;
+				int RefLineCount = 1;
+
+				for (int i = 0; i < cstruct.nodesCount; i++) {
+					if (CorrespondenceTable.get(cstruct.nodesArray[i]) != null) {
+						int fID = CorrespondenceTable.get(cstruct.nodesArray[i]);
+						AttributeValueMatrix headNode = fstruct.treebank.get(0);
+						AttributeValueMatrix targNode = headNode
+								.getSpecifiedNode(fID);
+						AttributeValueMatrix realTargNode = AttributeValueMatrix
+								.getRealContent(targNode);
+						int j = fstruct.indexTable.get(realTargNode);
+						int Xs = this.cstruct.XMiddleArray[i] + this.cstruct.nodeLengthsArray[i] / 2 + 5;
+						int Ys = this.cstruct.YTopArray[i] + this.fontHight / 2;
+						int Xe = fstruct.XLeftArray[j];
+						int Ye = (fstruct.YUpArray[j] + fstruct.YDownArray[j]) / 2;
+						drawRefLine(Xs, Ys, Xe, Ye, g2);
+						RefLineCount++;
+					}
+				}
+			}
+
+			// Draw correspondence line from f-structure to EDS
+			for(Attribute i : fstruct.positionMap.keySet()) {
+				Dimension attrPosition = fstruct.positionMap.get(i);
+				String[] edsLinks = i.getEdsLinks();
+				if(edsLinks != null) {
+					for(String link : edsLinks) {
+						if(!edsPositionMap.containsKey(link))
+							continue;
+						Dimension edsPosition = edsPositionMap.get(link);
+						drawRefLine((int) attrPosition.getWidth(),
+								(int) attrPosition.getHeight(),
+								(int) edsPosition.getWidth(),
+								// align to the middle of the line.
+								(int) edsPosition.getHeight() - fontHight / 4,
+								g2);
+					}
+				}
 			}
 		}
 	}
@@ -368,6 +392,9 @@ public class LFGStructPanel extends TreePanel<Element> {
 	 * @param g2
 	 */
 	private void drawRefLine(int x1, int y1, int x2, int y2, Graphics2D g2) {
+		if (isColor) {
+			g2.setColor(Color.MAGENTA);
+		}
 		GeneralPath shape = new GeneralPath();
 		Point p1 = new Point(x1, y1);
 		Point p2 = new Point((x1 + x2) / 2, (y1 + y2) / 2);
@@ -391,6 +418,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 		arrowY[2] = y2;
 		arrowY[3] = y2 + arrowSize;
 		g2.fillPolygon(arrowX, arrowY, 4);
+		g2.setColor(Color.BLACK);
 	}
 
 	protected void paintComponent(Graphics g) {

@@ -2,6 +2,7 @@ package LinguaView.syntax;
 
 public class Attribute {
 	private String name;
+	private String[] edsLinks;
 	
 	public Attribute() {
 		
@@ -26,5 +27,13 @@ public class Attribute {
 		else {
 			return name.equals(((Attribute)other).name);
 		}
+	}
+
+	public String[] getEdsLinks() {
+		return edsLinks;
+	}
+
+	public void setEdsLinks(String[] edsLinks) {
+		this.edsLinks = edsLinks;
 	}
 }

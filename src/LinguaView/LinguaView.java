@@ -19,8 +19,6 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import net.sf.epsgraphics.ColorMode;
 import net.sf.epsgraphics.EpsGraphics;
@@ -34,7 +32,6 @@ import org.xml.sax.InputSource;
 
 import LinguaView.syntax.*;
 import LinguaView.UIutils.*;
-import org.xml.sax.SAXException;
 
 /**
  * LinguaView is the top-most class in the whole class hierarchy
@@ -1748,7 +1745,7 @@ class TabbedPaneFrame extends JFrame {
 
 	class ShowLineListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			LFGcomponent.isShown = !LFGcomponent.isShown;
+			LFGcomponent.showCorrespondingLine = !LFGcomponent.showCorrespondingLine;
 			LFGcomponent.init();
 		}
 	}

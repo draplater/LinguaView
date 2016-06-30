@@ -225,7 +225,7 @@ public class LFGStructPanel extends TreePanel<Element> {
 			int yPos = cYMiddle - edsSpan / 2;
 			// extract eps tags.
 			for (String line : edsLines) {
-				Pattern p = Pattern.compile("\\b(\\w+):");
+				Pattern p = Pattern.compile("\\s*([\\{\\w]+):");
 				Matcher m = p.matcher(line);
 				if(m.find()) {
 					String tag = m.group(1);
@@ -262,9 +262,9 @@ public class LFGStructPanel extends TreePanel<Element> {
 				}
 			}
 
-			// Draw correspondence line from f-structure to EDS
-			for(Attribute i : fstruct.positionMap.keySet()) {
-				Dimension attrPosition = fstruct.positionMap.get(i);
+			// Draw correspondence line from f-structure attribute to EDS
+			for(Attribute i : fstruct.attrPositionMap.keySet()) {
+				Dimension attrPosition = fstruct.attrPositionMap.get(i);
 				String[] edsLinks = i.getEdsLinks();
 				if(edsLinks != null) {
 					for(String link : edsLinks) {
@@ -273,6 +273,25 @@ public class LFGStructPanel extends TreePanel<Element> {
 						Dimension edsPosition = edsPositionMap.get(link);
 						drawRefLine((int) attrPosition.getWidth(),
 								(int) attrPosition.getHeight(),
+								(int) edsPosition.getWidth(),
+								// align to the middle of the line.
+								(int) edsPosition.getHeight() - fontHight / 4,
+								g2);
+					}
+				}
+			}
+
+			// Draw correspondence line from f-structure itself to EDS
+			for(Value i : fstruct.valueRightPositionMap.keySet()) {
+				Dimension valuePosition = fstruct.valueRightPositionMap.get(i);
+				String[] edsLinks = i.getEdsLinks();
+				if(edsLinks != null) {
+					for(String link : edsLinks) {
+						if(!edsPositionMap.containsKey(link))
+							continue;
+						Dimension edsPosition = edsPositionMap.get(link);
+						drawRefLine((int) valuePosition.getWidth(),
+								(int) valuePosition.getHeight(),
 								(int) edsPosition.getWidth(),
 								// align to the middle of the line.
 								(int) edsPosition.getHeight() - fontHight / 4,

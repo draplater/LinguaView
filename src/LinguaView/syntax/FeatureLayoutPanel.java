@@ -70,7 +70,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 * RefList stores all the referenced AVMs
 	 */
 	ArrayList<AttributeValueMatrix> RefList = new ArrayList<AttributeValueMatrix>();
-	Map<Attribute, Dimension> positionMap = new IdentityHashMap<>();
+	Map<Attribute, Dimension> attrPositionMap = new IdentityHashMap<>();
+	Map<Value, Dimension> valueRightPositionMap = new IdentityHashMap<>();
 
 	public void init() {
 		loadFont();
@@ -92,7 +93,8 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 	 * layout the f-structure according to the layout arranged
 	 */
 	public void render(Graphics2D g2) {
-		positionMap.clear();
+		attrPositionMap.clear();
+		valueRightPositionMap.clear();
 		g2.setFont(font);
 		g2.setColor(Color.BLACK);
 		g2.setStroke(new BasicStroke());
@@ -122,6 +124,9 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 							YDownArray[i], g2);
 					drawRightSquareBracket(XRightArray[i], YUpArray[i],
 							YDownArray[i], g2);
+					valueRightPositionMap.put(avm,
+							new Dimension(XRightArray[i],
+									(YUpArray[i] + YDownArray[i]) / 2));
 				}
 				// render attributes
 				for (Attribute attr : attrs) {
@@ -134,7 +139,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(((Atomic) Val).getValue(),
 								XBoarderLineArray[i], YPos);
-						positionMap.put(attr,
+						attrPositionMap.put(attr,
 								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// semantic forms
@@ -171,7 +176,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 								);
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
 						g2.drawString(sfStr, XBoarderLineArray[i], YPos);
-						positionMap.put(attr,
+						attrPositionMap.put(attr,
 								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// AVMs
@@ -183,7 +188,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 						int j = indexTable.get((AttributeValueMatrix) Val);
 						YPos = (YUpArray[j] + YDownArray[j]) / 2;
 						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
-						positionMap.put(attr,
+						attrPositionMap.put(attr,
 								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}
 					// set of AVMs
@@ -209,7 +214,7 @@ public class FeatureLayoutPanel extends TreePanel<AttributeValueMatrix> {
 								(int)(YDownPos - levelSize), g2);
 						drawRightCurlyBracket(XRightPos + CurlyBracketMargin,
 								YPos, (int)(YDownPos - levelSize), g2);
-						positionMap.put(attr,
+						attrPositionMap.put(attr,
 								new Dimension(XLeftArray[i] + XLeftMargin,
 										(YPos + YDownPos) / 2));
 

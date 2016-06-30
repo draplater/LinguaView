@@ -8,6 +8,7 @@ import java.util.Set;
 public class SemanticForm extends Value{
 	private String predicate = new String();
 	private Set<Argument> arguments = new LinkedHashSet<Argument>();
+	private String[] edsLinks;
 	
 	public SemanticForm() {
 		
@@ -111,5 +112,14 @@ public class SemanticForm extends Value{
 	
 	public void addArgs(Argument arg) {
 		arguments.add(arg);
+	}
+
+	@Override
+	public String[] getEdsLinks() {
+		return edsLinks;
+	}
+
+	public void setEdsLinks(String[] edsLinks) {
+		this.edsLinks = edsLinks;
 	}
 }

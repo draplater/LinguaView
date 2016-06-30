@@ -2,6 +2,7 @@ package LinguaView.syntax;
 
 public class Atomic extends Value {
 	private String value;
+	private String[] edsLinks;
 	
 	public Atomic() {
 		
@@ -26,5 +27,14 @@ public class Atomic extends Value {
 		else {
 			return value.equals(((Atomic)other).value);
 		}
+	}
+
+	@Override
+	public String[] getEdsLinks() {
+		return edsLinks;
+	}
+
+	public void setEdsLinks(String[] edsLinks) {
+		this.edsLinks = edsLinks;
 	}
 }

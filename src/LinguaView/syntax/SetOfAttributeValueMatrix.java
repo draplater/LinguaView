@@ -5,6 +5,8 @@ import java.util.Set;
 
 public class SetOfAttributeValueMatrix extends Value{
 	private Set<AttributeValueMatrix> avms = new HashSet<AttributeValueMatrix>();
+
+	private String[] edsLinks = null;
 	
 	public Set<AttributeValueMatrix> getSet() {
 		return avms;
@@ -60,5 +62,14 @@ public class SetOfAttributeValueMatrix extends Value{
 		Set<AttributeValueMatrix> avms2 = s2.avms;
 		avms1.addAll(avms2);
 		avms2.addAll(avms1);
+	}
+
+	@Override
+	public String[] getEdsLinks() {
+		return edsLinks;
+	}
+
+	public void setEdsLinks(String[] edsLinks) {
+		this.edsLinks = edsLinks;
 	}
 }

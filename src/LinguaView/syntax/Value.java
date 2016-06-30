@@ -2,7 +2,7 @@ package LinguaView.syntax;
 
 import java.util.Random;
 
-public class Value {
+public abstract class Value {
 	public enum ValueType {
 		SEM_FORM,
 		AVM,
@@ -31,4 +31,6 @@ public class Value {
 	public int hashCode() {
 		return hash;
 	}
+
+	abstract String[] getEdsLinks();
 }

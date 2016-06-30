@@ -87,6 +87,10 @@ public class AttributeValueMatrix extends Value implements
 	 * Indicator.  Indicating whether this avm is a root node.
 	 */
 	public boolean isRoot = false;
+	/**
+	 * store the link of EDS.
+	 */
+	private String[] edsLinks = null;
 	
 	public AttributeValueMatrix() {
 
@@ -240,11 +244,17 @@ public class AttributeValueMatrix extends Value implements
 	private static AttributeValueMatrix recursiveParse(Element e) {
 		AttributeValueMatrix res = new AttributeValueMatrix();
 		res.id = Integer.parseInt(e.getAttribute("id"));
+
+		String edsAttr = e.getAttribute("eds_link");
+
 		LargestID = res.id > LargestID ? res.id : LargestID;
 		AttributeValueMatrix content = new AttributeValueMatrix();
 		content.isContentOrPointer = true;
 		content.isRealContent = true;
 		content.id = -(++LargestID);
+		if(edsAttr != null && ! edsAttr.trim().isEmpty()) {
+			content.setEdsLinks(edsAttr.split(","));
+		}
 		AttributeValueMatrix pointer = new AttributeValueMatrix();
 		pointer.isContentOrPointer = true;
 		pointer.isRealContent = false;
@@ -837,6 +847,14 @@ public class AttributeValueMatrix extends Value implements
 			valueID = idMap.get(val);
 		}
 		return valueID;
+	}
+
+	public String[] getEdsLinks() {
+		return edsLinks;
+	}
+
+	public void setEdsLinks(String[] edsLinks) {
+		this.edsLinks = edsLinks;
 	}
 
 	/**

@@ -42,6 +42,7 @@ import LinguaView.UIutils.*;
 public class LinguaView {
 	static String filename = null;
 	public static void main(String[] args) {
+		Locale.setDefault(Locale.ENGLISH);
 		if(args.length >= 1) {
 			if(args[0].equals("export")) {
 				if(args.length < 3) {

@@ -75,7 +75,8 @@ public abstract class TreePanel<T> extends JPanel {
 	public int increaseFontSize() {
 		return ++fontSize;
 	}
-	
+
+
 	public int decreaseFontSize() {
 		if (fontSize==1) return 1;
 		return --fontSize;

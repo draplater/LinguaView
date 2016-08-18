@@ -30,7 +30,7 @@ public class CCGTerminalNode extends CCGNode {
 	public static void setInterpret(PatriciaTrie<String, String> interpretation){
 		_interpretation = interpretation;
 	}
-	
+
 	// no slots would be filled in terminal node. so just leave it;
 //	CoindexedObject slots[];
 	

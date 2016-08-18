@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<script src="svg-pan-zoom.js"></script>
+<script src="jquery-1.12.4.min.js"></script>
+<body>
+
+<h1>My first SVG</h1>
+
+<div class="controls">
+    <button id="zoom-in">Zoom in</button>
+    <button id="zoom-out">Zoom out</button>
+    <button id="reset">Reset</button>
+</div>
+
+<div id="svg_container"></div>
+
+<script>
+    var default_svg_width, default_svg_height;
+    var svg_graph_node, svg_node;
+    var panZoom;
+
+    function load_svg() {
+        svg_graph_node = $("g")[0];
+        svg_node = $("svg");
+        default_svg_width = svg_graph_node.getBoundingClientRect().width;
+        default_svg_height = svg_graph_node.getBoundingClientRect().height;
+    }
+
+    function resize_svg() {
+        svg_node.width(default_svg_width);
+        svg_node.height(default_svg_height);
+    }
+
+    function resize_svg_with_zoom() {
+        svg_node.width(default_svg_width * panZoom.getZoom() * 1.2);
+        svg_node.height(default_svg_height * panZoom.getZoom() * 1.2);
+    }
+
+    window.onload = function () {
+        try {
+            var svgData = getSVGFromJava();
+            $("#svg_container").html(svgData);
+            load_svg();
+            resize_svg();
+            panZoom = svgPanZoom('svg', {
+                zoomEnabled: true,
+                panEnabled: false,
+                mouseWheelZoomEnabled: false,
+                controlIconsEnabled: false
+            });
+        } catch(ReferenceError) {
+            $.get('example.svg',
+                    (function(svgData, status) {
+                        $("#svg_container").html(svgData);
+                        load_svg();
+                        resize_svg();
+                        panZoom = svgPanZoom('svg', {
+                            zoomEnabled: true,
+                            panEnabled: false,
+                            mouseWheelZoomEnabled: false,
+                            controlIconsEnabled: false
+                        });
+                    }),
+                    dataType="text"
+            );
+        }
+
+        $('#zoom-in').click(function (ev) {
+            ev.preventDefault();
+            panZoom.zoomIn();
+            panZoom.pan({x: 0, y: 0});
+            resize_svg_with_zoom();
+        });
+
+        $('#zoom-out').click(function (ev) {
+            ev.preventDefault();
+            panZoom.zoomOut();
+            panZoom.pan({x: 0, y: 0});
+            resize_svg_with_zoom();
+        });
+
+        $('#reset').click(function (ev) {
+            ev.preventDefault();
+            panZoom.resetZoom();
+            panZoom.pan({x: 0, y: 0});
+            resize_svg();
+        });
+    };
+
+</script>
+</body>
+</html>
+

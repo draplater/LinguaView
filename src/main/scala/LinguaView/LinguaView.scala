@@ -26,6 +26,8 @@ import _root_.LinguaView.syntax._
 import _root_.LinguaView.UIutils._
 import scala.util.control.Breaks._
 import utils.UI._
+import org.apache.batik.svggen.SVGGraphics2D
+import org.apache.batik.dom.GenericDOMImplementation
 
 /**
   * LinguaView is the top-most class in the whole class hierarchy
@@ -57,6 +59,20 @@ object LinguaView {
             frame.LFGcomponent.paint(g)
             g.flush()
             g.close()
+          } else if(args(2).endsWith(".svg")) {
+            // Get a DOMImplementation.
+            val domImpl = GenericDOMImplementation.getDOMImplementation
+
+            // Create an instance of org.w3c.dom.Document.
+            val svgNS = "http://www.w3.org/2000/svg"
+            val document = domImpl.createDocument(svgNS, "svg", null)
+
+            // Create an instance of the SVG Generator.
+            val g = new SVGGraphics2D(document)
+            frame.LFGcomponent.paint(g.asInstanceOf[Graphics])
+            val out = new OutputStreamWriter(new FileOutputStream(args(2)), "UTF-8")
+            g.stream(out, true) // UseCSS=true
+            out.close()
           }
         }
         catch {

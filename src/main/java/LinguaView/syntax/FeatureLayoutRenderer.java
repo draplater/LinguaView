@@ -2,6 +2,8 @@ package LinguaView.syntax;
 
 import LinguaView.TreePanel;
 import LinguaView.TreeRenderer;
+import org.apache.batik.svggen.ReferencedSVGGraphics2D;
+import org.w3c.dom.Element;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -163,8 +165,26 @@ public class FeatureLayoutRenderer extends TreeRenderer<AttributeValueMatrix>{
 								argsString, // args shown as <xxx, xxx>
 								nonSemArgsString //
 								);
-						g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
-						g2.drawString(sfStr, XBoarderLineArray[i], YPos);
+
+						// draw key
+						if(g2 instanceof ReferencedSVGGraphics2D) {
+							Element e = ((ReferencedSVGGraphics2D) g2)
+									.drawStringAsElement(Key, XLeftArray[i] + XLeftMargin, YPos);
+							e.setAttribute("class", "fstruct-key");
+							e.setAttribute("parent-fstruct", Integer.toString(avm.getRealID()));
+						} else {
+							g2.drawString(Key, XLeftArray[i] + XLeftMargin, YPos);
+						}
+
+						// draw value
+						if(g2 instanceof ReferencedSVGGraphics2D) {
+							Element e = ((ReferencedSVGGraphics2D) g2).drawStringAsElement(
+									sfStr, XBoarderLineArray[i], YPos);
+							e.setAttribute("class", "fstruct-value");
+							e.setAttribute("parent-fstruct", Integer.toString(avm.getRealID()));
+						} else {
+							g2.drawString(sfStr, XBoarderLineArray[i], YPos);
+						}
 						attrPositionMap.put(attr,
 								new Dimension(XLeftArray[i] + XLeftMargin, YPos));
 					}

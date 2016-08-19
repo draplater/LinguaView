@@ -2,10 +2,8 @@ package LinguaView.syntax;
 
 import LinguaView.TreeRenderer;
 import LinguaView.UIutils.Utils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.apache.batik.svggen.ReferencedSVGGraphics2D;
+import org.w3c.dom.*;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -443,7 +441,12 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 		shape.curveTo(p2.x, p2.y, (p2.x + p3.x) / 2, p3.y, p3.x, p3.y);
 		shape.moveTo(p3.x, p3.y);
 		shape.closePath();
-		g2.draw(shape);
+		if(g2 instanceof ReferencedSVGGraphics2D) {
+			Element e = ((ReferencedSVGGraphics2D) g2).drawAsElement(shape);
+			e.setAttribute("class", "refline");
+		} else {
+			g2.draw(shape);
+		}
 
 		int arrowSize = g2.getFont().getSize() / 5;
 		int[] arrowX = new int[4];

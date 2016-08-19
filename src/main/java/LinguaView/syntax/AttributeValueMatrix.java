@@ -61,12 +61,17 @@ public class AttributeValueMatrix extends Value implements
 	 * Note that this is only available on root nodes.
 	 */
 	private ArrayList<AttributeValueMatrix> RefList = new ArrayList<AttributeValueMatrix>();
+
 	/**
 	 * An unique id of an avm structure. Please use positive integer as id in
 	 * inputs only, the negative ones are occupied to dynamically add avms such
 	 * as "content" or "pointer" during the recursive build-up.
 	 */
 	private int id = 0;
+	/**
+	 * Id in the XML file.
+	 */
+	private int realID = 0;
 	/**
 	 * The largest absolute value of ID ever met. This field is created in order
 	 * to keep dynamically created new IDs unique.
@@ -171,6 +176,9 @@ public class AttributeValueMatrix extends Value implements
 		return RefList;
 	}
 
+	public int getRealID() {
+		return realID;
+	}
 
 	/**
 	 * Import a complete functional structure with a list of structured
@@ -243,7 +251,7 @@ public class AttributeValueMatrix extends Value implements
 	 */
 	private static AttributeValueMatrix recursiveParse(Element e) {
 		AttributeValueMatrix res = new AttributeValueMatrix();
-		res.id = Integer.parseInt(e.getAttribute("id"));
+		res.id = res.realID = Integer.parseInt(e.getAttribute("id"));
 
 		String edsAttr = e.getAttribute("eds_link");
 
@@ -252,6 +260,7 @@ public class AttributeValueMatrix extends Value implements
 		content.isContentOrPointer = true;
 		content.isRealContent = true;
 		content.id = -(++LargestID);
+		content.realID = res.id;
 		if(edsAttr != null && ! edsAttr.trim().isEmpty()) {
 			content.setEdsLinks(edsAttr.split(","));
 		}
@@ -259,6 +268,7 @@ public class AttributeValueMatrix extends Value implements
 		pointer.isContentOrPointer = true;
 		pointer.isRealContent = false;
 		pointer.id = -(++LargestID);
+		pointer.realID = res.id;
 		NodeList children = e.getChildNodes();
 		content.Attrs = new HashMap<String, Attribute>();
 		boolean childExists = false;

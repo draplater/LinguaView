@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -81,14 +82,15 @@ public class MetadataManager {
         this(new StringReader(input));
     }
 
-    public MetadataManager(Reader input)
-            throws UnsupportedEncodingException, XPathExpressionException {
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        InputSource source = new InputSource(input);
-        NodeList nodes = (NodeList) xpath.evaluate("/viewer/meta/*", source,
-                XPathConstants.NODESET);
+    public MetadataManager(Node metaNode) {
+        if(metaNode == null) {
+            return;
+        }
+        NodeList nodes = metaNode.getChildNodes();
         for(int i = 0; i<nodes.getLength(); i++) {
             Node node = nodes.item(i);
+            if(! (node.getNodeType() == Node.ELEMENT_NODE))
+                continue;
             String name = node.getNodeName();
             NamedNodeMap attrs = node.getAttributes();
             Map<String, String> attrMap = new HashMap<>();
@@ -116,6 +118,21 @@ public class MetadataManager {
                         , governable));
             }
         }
+    }
+
+    public MetadataManager(Reader input)
+            throws UnsupportedEncodingException, XPathExpressionException {
+        this(getMetaNode(input));
+    }
+
+    static private Node getMetaNode(Reader input) throws XPathExpressionException {
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource source = new InputSource(input);
+        NodeList nodes = (NodeList) xpath.evaluate("/viewer/meta", source,
+                XPathConstants.NODESET);
+        if(nodes.getLength() == 0)
+            return null;
+        return nodes.item(0);
     }
 
     public Set<GramFunc> getGramFuncList() {

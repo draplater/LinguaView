@@ -7,7 +7,7 @@ import java.util.Scanner
 import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
 
 import org.apache.batik.dom.GenericDOMImplementation
-import org.apache.batik.svggen.SVGGraphics2D
+import org.apache.batik.svggen.ReferencedSVGGraphics2D
 import syntax.LFGStructRenderer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.browser.{Browser, BrowserFunction}
@@ -61,11 +61,11 @@ object WebLinguaView {
     val document = domImpl.createDocument(svgNS, "svg", null)
 
     // Create an instance of the SVG Generator.
-    val g = new SVGGraphics2D(document)
-    val lfgRenderer = new LFGStructRenderer(g)
+    val g = new ReferencedSVGGraphics2D(document)
+    val lfgRenderer = new LFGStructRenderer()
     lfgRenderer.loadTreebank(LFGStructbank)
     lfgRenderer.init()
-    lfgRenderer.render()
+    lfgRenderer.render(g)
     val out = new StringWriter()
     g.stream(out, true) // UseCSS=true
     val ret = out.toString

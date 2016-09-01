@@ -16,6 +16,7 @@ import javax.swing.undo.UndoManager
 import javax.swing.undo.UndoableEdit
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
+
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -24,10 +25,11 @@ import org.w3c.dom.Text
 import org.xml.sax.InputSource
 import _root_.LinguaView.syntax._
 import _root_.LinguaView.UIutils._
+
 import scala.util.control.Breaks._
 import utils.UI._
-import org.apache.batik.svggen.SVGGraphics2D
 import org.apache.batik.dom.GenericDOMImplementation
+import org.apache.batik.svggen.ReferencedSVGGraphics2D
 
 /**
   * LinguaView is the top-most class in the whole class hierarchy
@@ -68,7 +70,7 @@ object LinguaView {
             val document = domImpl.createDocument(svgNS, "svg", null)
 
             // Create an instance of the SVG Generator.
-            val g = new SVGGraphics2D(document)
+            val g = new ReferencedSVGGraphics2D(document)
             frame.LFGcomponent.paint(g.asInstanceOf[Graphics])
             val out = new OutputStreamWriter(new FileOutputStream(args(2)), "UTF-8")
             g.stream(out, true) // UseCSS=true

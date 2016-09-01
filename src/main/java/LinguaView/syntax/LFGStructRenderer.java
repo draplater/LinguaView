@@ -7,6 +7,7 @@ import org.w3c.dom.*;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
+import java.sql.Ref;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -195,6 +196,10 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 	 */
 	@SuppressWarnings("unused")
 	public void render(Graphics2D g2) {
+		if (g2 instanceof ReferencedSVGGraphics2D) {
+			((ReferencedSVGGraphics2D) g2).setSVGCanvasSize(area);
+		}
+
 		metrics = g2.getFontMetrics();
 		g2.setFont(font);
 		g2.setColor(Color.BLACK);

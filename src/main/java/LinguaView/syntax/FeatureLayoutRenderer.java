@@ -70,10 +70,12 @@ public class FeatureLayoutRenderer extends TreeRenderer<AttributeValueMatrix>{
 	Map<Attribute, Dimension> attrPositionMap = new IdentityHashMap<>();
 	Map<Value, Dimension> valueRightPositionMap = new IdentityHashMap<>();
 
+	FeatureLayoutRenderer() {}
+
 	FeatureLayoutRenderer(Graphics g) {
-		super(g);
-		defaultGraphics = g;
+		super.defaultGraphics = g;
 	}
+
 	public void init() {
 		loadFont();
 		loadSentence();

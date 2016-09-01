@@ -2,6 +2,7 @@ package LinguaView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +21,11 @@ import java.util.ArrayList;
 @SuppressWarnings("serial")
 public abstract class TreeRenderer<T> {
 
-	protected Graphics defaultGraphics = null;
+	/**
+	 * Used to create proper font metrics
+	 */
+	protected Graphics defaultGraphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics();
+
 	public Dimension area = new Dimension(0,0);
 	public static int minAreaWidth = 175;
 	public static int minAreaHeight = 80;
@@ -48,9 +53,7 @@ public abstract class TreeRenderer<T> {
 	public double levelSizeFactor = 2.0;
 	public int textTipMargin = 4;
 
-	public TreeRenderer(Graphics g) {
-		defaultGraphics = g;
-	}
+	public TreeRenderer() {}
 
 	public void loadTreebank(ArrayList<T> treebank) {
 		this.treebank = treebank;
@@ -62,10 +65,6 @@ public abstract class TreeRenderer<T> {
 	}
 	
 	public abstract void init();
-
-	public void render() {
-		render((Graphics2D) defaultGraphics);
-	}
 
 	public abstract void render(Graphics2D g2);
 	
@@ -102,7 +101,7 @@ public abstract class TreeRenderer<T> {
 	public void loadFont() {
 		font = new Font("SansSerif", Font.PLAIN, fontSize);
 		smallFont = new Font("SansSerif", Font.BOLD, smallFontSize);
-		metrics = defaultGraphics.getFontMetrics();
+		metrics = defaultGraphics.getFontMetrics(font);
 		fontDescendent = metrics.getDescent();
     	smallfontHight = metrics.getHeight();
     	fontHight = metrics.getHeight();    	

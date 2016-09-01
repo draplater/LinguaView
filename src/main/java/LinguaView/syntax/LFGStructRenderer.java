@@ -67,14 +67,23 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 	private int edsWidth;
 
 	public LFGStructRenderer(Graphics g) {
-		super(g);
-		defaultGraphics = g;
-		fstruct = new FeatureStructure(g);
-		cstruct = new ConstStructure(g);
+		super();
+		if(g != null) {
+			defaultGraphics = g;
+			fstruct = new FeatureStructure(g);
+			cstruct = new ConstStructure(g);
+		} else {
+			fstruct = new FeatureStructure();
+			cstruct = new ConstStructure();
+		}
 		cLeftMarginOrig = cstruct.leftMargin;
 		fLeftMarginOrig = fstruct.leftMargin;
 		cTopMarginOrig = cstruct.topMargin;
 		fTopMarginOrig = fstruct.topMargin;
+	}
+
+	public LFGStructRenderer() {
+		this(null);
 	}
 
 	/**
@@ -87,8 +96,10 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 	 */
 	class FeatureStructure extends FeatureLayoutRenderer {
 
+		FeatureStructure() {
+		}
+
 		FeatureStructure(Graphics g) {
-			super(g);
 			defaultGraphics = g;
 		}
 
@@ -121,8 +132,11 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 	 */
 	class ConstStructure extends ConstTreeRenderer {
 
+		ConstStructure() {
+
+		}
+
 		ConstStructure(Graphics g) {
-			super(g);
 			defaultGraphics = g;
 		}
 
@@ -140,7 +154,7 @@ public class LFGStructRenderer extends TreeRenderer<Element> {
 	
 	public void loadFont() {
 		font = new Font("SansSerif", Font.PLAIN, fontSize);
-		metrics = defaultGraphics.getFontMetrics();
+		metrics = defaultGraphics.getFontMetrics(font);
 		fontDescendent = metrics.getDescent();
 		fontHight = metrics.getHeight();
 		levelSize = fontHight * levelSizeFactor;

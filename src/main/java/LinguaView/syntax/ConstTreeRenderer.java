@@ -69,13 +69,10 @@ public class ConstTreeRenderer extends TreeRenderer<ConstTree> {
 	 */
 	private int totalWidthShift;
 
-	public ConstTreeRenderer(Graphics g) {
-		super(g);
-		defaultGraphics = g;
+	public ConstTreeRenderer() {
 	}
 
-	public ConstTreeRenderer(Graphics g, ArrayList<ConstTree> treebank) {
-		this(g);
+	public ConstTreeRenderer(ArrayList<ConstTree> treebank) {
 		loadTreebank(treebank);
 	}
 	

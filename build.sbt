@@ -31,3 +31,5 @@ packageOptions in assembly += ManifestAttributes(
   ("Rsrc-Class-Path", "./"))
 
 unmanagedBase <<= baseDirectory { base => base / "lib" }
+
+libraryDependencies += "commons-io" % "commons-io" % "2.5"
